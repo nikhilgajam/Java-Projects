@@ -1,0 +1,3 @@
+To create a jar type make class with javac command:
+
+jar cfvm Simple.jar Manifest.txt Jp.class SimpleCal.class
