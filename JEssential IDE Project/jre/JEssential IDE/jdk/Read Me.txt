@@ -1,0 +1,1 @@
+Download any version of JDK and you should replace this folder with that with same name "jdk"
