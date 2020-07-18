@@ -146,8 +146,10 @@ class SimpleBrowser extends JFrame{
 
     private void load_front(){
 
-        if(nav_count <= history.size()-1)
+        if(nav_count <= history.size()-1) {
             nav_count++;
+            back_btn.setEnabled(true);
+        }
         if(history.size()-1 == nav_count){
             // We need to disable one and enable another
             front_btn.setEnabled(false);
