@@ -32,6 +32,7 @@ class JEssential extends JFrame{
     String path = "";
     String run_path = "";
     String run_name = "";
+    String cwd = System.getProperty("user.dir");
     int opened = 0;
     int saved = 0;
 
@@ -671,7 +672,7 @@ class JEssential extends JFrame{
                 editor.setBackground(color);
                 status_bar.setText(" Background Color Changed To DEFAULT ");
 
-            }else {
+            }else{
                 editor.setBackground(color);
                 line_pane.setBackground(new Color(color.getRed(), color.getGreen(), color.getBlue(), 100));
                 status_bar.setText(" Background Color Changed ");
@@ -690,7 +691,7 @@ class JEssential extends JFrame{
             if(!path.equals(""))
                 save();
 
-            Runtime.getRuntime().exec("cmd /c start cmd.exe /K \" jdk\\bin\\javac.exe \""+ path +"\" && exit \"");
+            Runtime.getRuntime().exec("cmd /c start cmd.exe /K \" jdk\\bin\\javac.exe \""+ path +"\" && title JEssential IDE && echo Build Completed Successfully && echo. && pause && exit || echo. && title JEssential IDE && echo Check Syntax && title JEssential IDE && pause && exit  \"");
             status_bar.setText(" Build Executed Successfully ");
 
         }catch (Exception ex){
@@ -702,8 +703,7 @@ class JEssential extends JFrame{
     private void run(){
 
         try{
-
-            Runtime.getRuntime().exec("cmd /c start cmd.exe /K \" jdk\\bin\\java.exe -cp \"" + run_path + "\" " + run_name.substring(0, run_name.length()-5) + " && pause && exit \"");
+            Runtime.getRuntime().exec("cmd /c start cmd.exe /K \" " + run_path.substring(0, 2) + " && cd \"" + run_path + "\" && \"" + cwd + "\\jdk\\jre\\bin\\java.exe\" -cp \"" + run_path + "\" " + run_name.substring(0, run_name.length()-5) + " && echo. && title JEssential IDE && pause && exit || echo. && title JEssential IDE && pause && exit \"");
             status_bar.setText(" Run Executed Successfully ");
 
         }catch (Exception ex){
@@ -719,7 +719,7 @@ class JEssential extends JFrame{
             if(!path.equals(""))
                 save();
 
-            Runtime.getRuntime().exec("cmd /c start cmd.exe /K \" jdk\\bin\\javac.exe \""+ path +"\" && jdk\\jre\\bin\\java.exe -cp \"" + run_path + "\" " + run_name.substring(0, run_name.length()-5) + " && pause && exit \"");
+            Runtime.getRuntime().exec("cmd /c start cmd.exe /K \" jdk\\bin\\javac.exe \""+ path +"\" &&  " + run_path.substring(0, 2) + " && cd \"" + run_path + "\" && \"" + cwd + "\\jdk\\jre\\bin\\java.exe\" -cp \"" + run_path + "\" " + run_name.substring(0, run_name.length()-5) + " && echo. && title JEssential IDE && pause && exit || echo. && title JEssential IDE && pause && exit \"");
             status_bar.setText(" Build And Run Executed Successfully ");
 
         }catch (Exception ex){
@@ -730,15 +730,15 @@ class JEssential extends JFrame{
 
     private void default_code(){
 
-        editor.append("public class Main{\n\n  public static void main(String[] args){\n\n      System.out.println(\"Hello World\");\n\n    }\n\n}");
+        editor.append("public class Main{\n\n\tpublic static void main(String[] args) {\n\n\t\tSystem.out.println(\"Hello World\");\n\n\t}\n\n}");
         line_pane.setText(getText());
 
     }
 
     private void help(){
 
-        status_bar.setText(" JEssential IDE Is Developed By Nikhil ");
-        JOptionPane.showMessageDialog(null, "Essential IDE Is Written By Nikhil", "About", JOptionPane.PLAIN_MESSAGE);
+        status_bar.setText(" JEssential IDE Developed By Nikhil ");
+        JOptionPane.showMessageDialog(null, "JEssential IDE Created By Nikhil Gajam", "About", JOptionPane.PLAIN_MESSAGE);
 
     }
 
