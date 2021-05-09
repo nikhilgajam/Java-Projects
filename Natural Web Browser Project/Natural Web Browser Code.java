@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.concurrent.Worker;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -20,6 +21,7 @@ public class Jp extends Application {
     Button back_btn, forward_btn, home_btn, reload_btn, history_btn, n_btn;
     TextField url_box;
     ProgressBar progressBar;
+    String temp;
 
     public static void main(String[] args) {
 
@@ -38,6 +40,18 @@ public class Jp extends Application {
 
         view = new WebView();
         web = view.getEngine();
+
+        web.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+            if (Worker.State.SUCCEEDED.equals(newValue)) {
+                temp = web.getLocation();
+                // Setting empty url to homepage and other websites with that website name
+                if(temp.endsWith("res/index.html") && temp.contains("file")){
+                    url_box.setText("");
+                }else {
+                    url_box.setText(temp);
+                }
+            }
+        });
 
         HBox controls = new HBox();
         controls.setAlignment(Pos.CENTER);
@@ -117,22 +131,19 @@ public class Jp extends Application {
 
     private void load_back(){
 
-        web.executeScript("history.back()");
-        url_box.setText("");
+        web.executeScript("history.back()");      // We can also use, history = web.getHistory(); history.go(-1);
 
     }
 
     private void load_forward(){
 
-        web.executeScript("history.forward()");
-        url_box.setText("");
+        web.executeScript("history.forward()");   // We can also use, history = web.getHistory(); history.go(1);
 
     }
 
     private void reload(){
 
         web.reload();
-        url_box.setText(web.getLocation());
 
     }
 
@@ -141,8 +152,6 @@ public class Jp extends Application {
         web.load("https://nikhilphotography.weebly.com/");
         // Setting the progress bar to load mode
         progressBar.progressProperty().bind(view.getEngine().getLoadWorker().progressProperty());
-        url_box.setText(web.getLocation());
-
 
     }
 
@@ -179,7 +188,6 @@ public class Jp extends Application {
     private void home_page(){
 
         web.load(getClass().getResource("res/index.html").toString());
-        url_box.setText("");
 
     }
 
