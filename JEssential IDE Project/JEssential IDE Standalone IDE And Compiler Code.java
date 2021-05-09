@@ -1,4 +1,3 @@
-import javax.swing.text.Element;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -20,6 +19,7 @@ public class Jp {
 
 class JEssential extends JFrame{
 
+    // Variables
     Date date;
     JTextArea editor, line_pane;
     JLabel status_bar;
@@ -35,6 +35,7 @@ class JEssential extends JFrame{
     String cwd = System.getProperty("user.dir");
     int opened = 0;
     int saved = 0;
+    long ln_count = 1;
 
     public JEssential(){
 
@@ -55,14 +56,14 @@ class JEssential extends JFrame{
         editor.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if(editor.getText().length()-1 <= editor.getCaretPosition()) {
-                    if(editor.getText().length() == editor.getCaretPosition() && (e.getKeyChar() == '\n' || e.getKeyChar() == 8 || e.getKeyChar() == 22))
-                        line_pane.setText(getText());
-                }
-                if(e.getKeyChar() == '\n')
-                    line_pane.setText(getText());
-            }
 
+                // When before line count is not equal to present line count then update the line number
+                if(ln_count != editor.getLineCount())
+                    line_pane.setText(getText());
+
+//				25 Redo, 26 Undo, 8 Backspace, 10 Enter
+//				System.out.println((int)e.getKeyChar());   // To get the number of key typed
+            }
         });
         add(new JScrollPane(editor), BorderLayout.CENTER);
 
@@ -157,12 +158,12 @@ class JEssential extends JFrame{
 
         undo = new JMenuItem("Undo");
         undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK));
-        undo.addActionListener(e -> {ur_manager.undo(); line_pane.setText(getText());});
+        undo.addActionListener(e -> {ur_manager.undo(); if(ln_count != editor.getLineCount()) line_pane.setText(getText());});
         edit_menu.add(undo);
 
         redo = new JMenuItem("Redo");
         redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_MASK));
-        redo.addActionListener(e -> {ur_manager.redo(); line_pane.setText(getText());});
+        redo.addActionListener(e -> {ur_manager.redo(); if(ln_count != editor.getLineCount()) line_pane.setText(getText());});
         edit_menu.add(redo);
 
         edit_menu.addSeparator();
@@ -184,7 +185,7 @@ class JEssential extends JFrame{
         date = new Date();
         time = new JMenuItem("Date And Time");
         time.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK));
-        time.addActionListener(e -> editor.append(date.toString()));
+        time.addActionListener(e -> editor.insert(date.toString(), editor.getCaretPosition()));
         edit_menu.add(time);
 
         size = new JMenuItem("Text Size");
@@ -252,11 +253,11 @@ class JEssential extends JFrame{
         popup_menu = new JPopupMenu();
 
         undo_p = new JMenuItem("Undo             ");
-        undo_p.addActionListener(e -> ur_manager.undo());
+        undo_p.addActionListener(e -> {ur_manager.undo(); if(ln_count != editor.getLineCount()) line_pane.setText(getText());});
         popup_menu.add(undo_p);
 
         redo_p = new JMenuItem("Redo");
-        redo_p.addActionListener(e -> ur_manager.redo());
+        redo_p.addActionListener(e -> {ur_manager.redo(); if(ln_count != editor.getLineCount()) line_pane.setText(getText());});
         popup_menu.add(redo_p);
 
         popup_menu.addSeparator();
@@ -293,20 +294,18 @@ class JEssential extends JFrame{
         });
 
         // Add all the window settings after the widgets
-
         setTitle("JEssential IDE");
         setVisible(true);
         ImageIcon img = new ImageIcon("res/icon.png");
         setIconImage(img.getImage());
         setSize(942, 642);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
     }
 
 
     // Actions of the menu button clicks
-
 
     private void show_popup_menu(MouseEvent m_event){
 
@@ -335,7 +334,7 @@ class JEssential extends JFrame{
                 saved = opened = 0;
                 setTitle("JEssential IDE");
             }else{
-                int yn = JOptionPane.showConfirmDialog(null, "Do You Want To Save The Data Before Clearing?", "JText Editor", JOptionPane.YES_NO_CANCEL_OPTION);
+                int yn = JOptionPane.showConfirmDialog(null, "Do You Want To Save The Data Before Clearing?", "JEssential IDE", JOptionPane.YES_NO_CANCEL_OPTION);
                 if(yn == JOptionPane.YES_OPTION){
                     int get = save_as();
                     if(get == 1){
@@ -365,11 +364,14 @@ class JEssential extends JFrame{
 
     public String getText() {
 
-        int caretPosition = editor.getDocument().getLength();
-        Element root = editor.getDocument().getDefaultRootElement();
-        StringBuilder text = new StringBuilder("1" + System.getProperty("line.separator"));
-        for (int i = 2; i < root.getElementIndex(caretPosition) + 2; i++) {
-            text.append(i).append(System.getProperty("line.separator"));
+        StringBuilder text = new StringBuilder();
+        ln_count = editor.getLineCount();
+        for(int i=1; i<=ln_count; i++){
+            if(i < ln_count){
+                text.append(i).append("\n");
+            }else{
+                text.append(i);
+            }
         }
 
         return text.toString();
@@ -440,7 +442,7 @@ class JEssential extends JFrame{
             run_name = jc.getSelectedFile().getName();
             File check = new File(path);
             if(check.exists()) {
-                int yn = JOptionPane.showConfirmDialog(null, "This file already exists do you want to replace?", "JText Editor", JOptionPane.YES_NO_CANCEL_OPTION);
+                int yn = JOptionPane.showConfirmDialog(null, "This file already exists do you want to replace?", "JEssential IDE", JOptionPane.YES_NO_CANCEL_OPTION);
                 if(yn == JOptionPane.YES_OPTION){
                     File write = new File(path);
                     FileWriter w = new FileWriter(write);
@@ -483,8 +485,9 @@ class JEssential extends JFrame{
             if(data.equals("")){
                 dispose();  // Destroys the present window
             }else{
-                int yn = JOptionPane.showConfirmDialog(null, "Do You Want To Save The Data Before Quitting?", "JText Editor", JOptionPane.YES_NO_CANCEL_OPTION);
-                if(yn == JOptionPane.YES_OPTION){
+
+                int yn = JOptionPane.showConfirmDialog(null, "Do You Want To Save The Data Before Quitting?", "JEssential IDE", JOptionPane.YES_NO_CANCEL_OPTION);
+                if(yn == 0){
                     int get = save_as();
                     if(get == 1){
                         dispose();
@@ -531,7 +534,7 @@ class JEssential extends JFrame{
 
         try{
 
-            String get = JOptionPane.showInputDialog(null, "Enter Old Word To Replace", "JText Editor", JOptionPane.PLAIN_MESSAGE);
+            String get = JOptionPane.showInputDialog(null, "Enter A Word To Search", "JEssential IDE", JOptionPane.PLAIN_MESSAGE);
             String data = editor.getText();
             String[] arr = data.split(" ");
             int count = 0;
@@ -552,8 +555,8 @@ class JEssential extends JFrame{
 
         try{
 
-            String get_old = JOptionPane.showInputDialog(null, "Enter Existing Word To Replace", "JText Editor", JOptionPane.PLAIN_MESSAGE);
-            String get_new = JOptionPane.showInputDialog(null, "Enter New Word To Replace Existing Word", "JText Editor", JOptionPane.PLAIN_MESSAGE);
+            String get_old = JOptionPane.showInputDialog(null, "Enter Existing Word To Replace", "JEssential IDE", JOptionPane.PLAIN_MESSAGE);
+            String get_new = JOptionPane.showInputDialog(null, "Enter New Word To Replace Existing Word", "JEssential IDE", JOptionPane.PLAIN_MESSAGE);
             String data = editor.getText();
             data = data.replaceAll(get_old, get_new);
             editor.setText(data);
@@ -566,7 +569,7 @@ class JEssential extends JFrame{
 
     private void text_size(){
 
-        String get = JOptionPane.showInputDialog(null, "Enter the size of text (1-100)\nDefault is 12" + "\nCurrent Text Size : " + font.getSize() , "JText Editor", JOptionPane.PLAIN_MESSAGE);
+        String get = JOptionPane.showInputDialog(null, "Enter the size of text (1-100)\nDefault is 12" + "\nCurrent Text Size : " + font.getSize() , "JEssential IDE", JOptionPane.PLAIN_MESSAGE);
 
         try {
 
@@ -585,7 +588,7 @@ class JEssential extends JFrame{
 
     private void text_style(){
 
-        String get = JOptionPane.showInputDialog(null, "Enter 0 - PLAIN\nEnter 1 - BOLD\nEnter 2 - ITALIC\nEnter 3 - BOLD + ITALIC\nDefault is PLAIN" + "\nCurrent Text Style : " + font.getSize(), "JText Editor", JOptionPane.PLAIN_MESSAGE);
+        String get = JOptionPane.showInputDialog(null, "Enter 0 - PLAIN\nEnter 1 - BOLD\nEnter 2 - ITALIC\nEnter 3 - BOLD + ITALIC\nDefault is PLAIN" + "\nCurrent Text Style : " + font.getStyle(), "JEssential IDE", JOptionPane.PLAIN_MESSAGE);
 
         try {
 
@@ -618,7 +621,7 @@ class JEssential extends JFrame{
 
     private void text_font(){
 
-        String get = JOptionPane.showInputDialog(null, "Enter the name of the font\nEx:Pristina, Calibri, Rockwell etc\nDefault is EMPTY String"+ "\nCurrent Text Font : " + font.getSize(), "JText Editor", JOptionPane.PLAIN_MESSAGE);
+        String get = JOptionPane.showInputDialog(null, "Enter the name of the font\nEx:Pristina, Calibri, Rockwell etc\nDefault is EMPTY String"+ "\nCurrent Text Font : " + font.getFontName(), "JEssential IDE", JOptionPane.PLAIN_MESSAGE);
 
         try {
 
