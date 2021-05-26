@@ -1,6 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
+import java.util.Objects;
 import java.util.Random;
 import javax.sound.sampled.*;
 
@@ -16,6 +16,7 @@ public class Jp{
 
 
 class NumberGame{
+
 
 	// Window
 	JFrame frame = new JFrame("Number Game");
@@ -109,11 +110,11 @@ class NumberGame{
 
 		try{
 			range_num = Integer.parseInt(range_box.getText());
-			if(range_num < 5 || range_num >100){
+			if(range_num < 9 || range_num >100){
 				throw new Exception("Value Error");
 			}
 		}catch(Exception ex){
-			JOptionPane.showMessageDialog(null, "Enter The Numbers In Range (5 to 100) Only", "Value Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Enter The Numbers In Range (9 to 100) Only", "Value Error", JOptionPane.ERROR_MESSAGE);
 			range_box.setText("100");
 			evaluate();
 		}
@@ -176,16 +177,15 @@ class NumberGame{
 
 	private void sound(int track){
 
-		File file = null;
+		String str = "";
 
-		if(track == 1){
-			file = new File("sounds/correct.wav");
-		}else if(track == 0){
-			file = new File("sounds/mistake.wav");
-		}
+		if(track == 1)
+			str = "sounds/correct.wav";
+		else if(track == 0)
+			str = "sounds/mistake.wav";
 
 		try{
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(file);
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource(str)));
 			Clip clip = AudioSystem.getClip();
 			clip.open(audioStream);
 			clip.start();
@@ -194,5 +194,6 @@ class NumberGame{
 		}
 
 	}
+
 
 }
