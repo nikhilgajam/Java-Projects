@@ -38,11 +38,11 @@ class TicTacToe{
 
 	// Variables
 	char[] boxes = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
-	int get;
+	char get;  // Stores the character in buttons array at specified index
 	int turn = rand.nextInt(2) + 1;   // turn == 1 => X & turn == 2 => O
-	int checks = 0;
-	int comp;
-	int play_count = 0;
+	int checks = 0;  // Stores the value returned by check method
+	int comp;  // Stores the
+	int play_count = 0, x_score = 0, o_score = 0, tie_count = 0;
 	boolean computer_plays = true;
 	boolean sound_on = true;
 
@@ -171,12 +171,11 @@ class TicTacToe{
 	}
 
 	private void clicked(int index){
-
 		// When ever you click a button this method will be executed
 		playSounds("sounds/Windows XP Start.wav");
-		get = boxes[index] = buttons[index].getText().charAt(0);
+		get = boxes[index] = buttons[index].getText().charAt(0);  // Specified button array text will be stored in both get variable and boxes array
 		if(get == ' '){
-			// Shows the turn
+			// Shows the turn if you enable play with human mode
 			if(!computer_plays)
 				showTurn('O', 'X');
 
@@ -195,41 +194,33 @@ class TicTacToe{
 
 		if(computer_plays && turn == 2)
 			validates(-1);
-
 	}
 
 	private void putX(int index){
-
 		// X will be placed in boxes array and buttons
 		boxes[index] = 'X';
 		buttons[index].setForeground(Color.RED);
 		buttons[index].setText("X");
 		turn = 2;
-
 	}
 
 	private void putO(int index){
-
 		// O will be placed in boxes array and buttons
 		boxes[index] = 'O';
 		buttons[index].setForeground(Color.BLUE);
 		buttons[index].setText("O");
 		turn = 1;
-
 	}
 
 	private void showTurn(char p, char q){
-
 		// If you select human mode then it shows the who's turn and printing it with which ever way we want
 		if(turn == 1)
 			display.setText(p + " Turn");
 		else
 			display.setText(q + " Turn");
-
 	}
 
 	private void validates(int index){
-
 		// Validates and executes the code according to turn and mode
 		if(turn == 1){
 
@@ -252,11 +243,9 @@ class TicTacToe{
 		}
 		// Keeps a count of how many times this method got executed
 		play_count++;
-
 	}
 
 	private void computer_moves(){
-
 		// Computer makes a move with this code
 		if(boxes[0] == 'X' && boxes[1] == 'X' && boxes[2] == ' '){
 			putO(2);
@@ -307,6 +296,7 @@ class TicTacToe{
 		}else if(boxes[2] == 'X' && boxes[5] == ' ' && boxes[8] == 'X'){
 			putO(5);
 		}else{
+			comp = rand.nextInt(9);
 			while(boxes[comp] != ' '){
 				comp = rand.nextInt(9);
 			}
@@ -315,11 +305,9 @@ class TicTacToe{
 		// If play_count is 9 and computer mode is on then it executes this code to get the data that who won
 		if(computer_plays && play_count == 9)
 			clicked(-1);
-
 	}
 
 	private int check(){
-
 		// This code will be executed to know that who won the game
 
 		// X wins
@@ -375,8 +363,9 @@ class TicTacToe{
 			winner_settings(2, 4, 6, 'O');
 			return 1;
 		}
-		// If play_count is 9 then its a tie because we cannot make any move
+		// If play_count is 9 then its a tie and we cannot make any move
 		if(play_count == 9){
+			tie_count++;
 			display.setText("TIE");
 			wantToContinue();
 		}
@@ -393,17 +382,21 @@ class TicTacToe{
 	}
 
 	private void winner_settings(int i, int j, int k, char c){
+		// Updating scores of x and o
+		if(c == 'X'){
+			x_score++;
+		}else{
+			o_score++;
+		}
 
 		// If someone's won then it will mark those boxes with green color and prints who won
 		buttons[i].setBackground(Color.GREEN);
 		buttons[j].setBackground(Color.GREEN);
 		buttons[k].setBackground(Color.GREEN);
 		display.setText(c + " WON");
-
 	}
 
 	private void reset(){
-
 		// Resets the count, boxes array and buttons
 		play_count = 0;
 
@@ -417,13 +410,13 @@ class TicTacToe{
 		}
 
 		display.setText("Tic Tac Toe");
-
 	}
 
 	private void wantToContinue(){
-
 		// Continues and resets if yes selected, closes if no is selected
-		int yn = JOptionPane.showConfirmDialog(null, "Do You Want To Continue Playing?", "Tic Tac Toe", JOptionPane.YES_NO_OPTION);
+		int yn = JOptionPane.showConfirmDialog(null, "Do You Want To Continue Playing?\n\n" +
+						"_____Score_____\n\n" + "X Won: " + x_score + " time(s)\n" + "O Won: " + o_score + " time(s)\n" + "Tie: " + tie_count + " time(s)",
+				"Tic Tac Toe", JOptionPane.YES_NO_OPTION);
 		if(yn == 1){
 			window.dispose();
 			playSounds("sounds/Windows XP Shutdown.wav");
@@ -434,13 +427,12 @@ class TicTacToe{
 			if(!computer_plays)
 				showTurn('X', 'O');
 		}
-
 	}
 
 	private void toggleMode(){
-
 		// Menu mode toggle method
 		reset();
+		x_score = o_score = tie_count = 0;
 
 		if(computer_plays){
 			comp_m_item.setSelected(false);
@@ -459,11 +451,9 @@ class TicTacToe{
 		// If computer starts the game then that move will be displayed with this code
 		if(computer_plays && turn == 2)
 			validates(-1);
-
 	}
 
 	private void toggleSound(){
-
 		// Toggles the sound button on/off
 		if(sound_on){
 			sound_on = false;
@@ -472,14 +462,11 @@ class TicTacToe{
 			sound_on = true;
 			sound_m_item.setSelected(true);
 		}
-
 	}
 
 	void playSounds(String url){
-
 		// Plays the sound
 		if(sound_on){
-
 			try{
 				// Objects... will fetch the files from jar as well. If you're not using jar try to keep those files in the same folder in which you have class
 				AudioInputStream audioStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource(url)));
@@ -490,7 +477,6 @@ class TicTacToe{
 				e.printStackTrace();
 			}
 		}
-
 	}
 
 
