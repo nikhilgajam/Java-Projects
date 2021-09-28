@@ -37,10 +37,12 @@ class SearchAnything{
 		window.setLayout(new BorderLayout());
 
 		// Display textarea
-		display = new JTextArea("Welcome");
+		display = new JTextArea();
 		display.setFont(new Font("Rockwell", Font.PLAIN, 25));
 		display.setWrapStyleWord(true);
 		display.setLineWrap(true);
+		display.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		display.setCaretColor(Color.BLACK);
 		display.setBackground(Color.BLACK);
 		display.setForeground(Color.ORANGE);
 		window.add(new JScrollPane(display), BorderLayout.CENTER);
@@ -58,6 +60,7 @@ class SearchAnything{
 	private void startSearch(){
 
 		// Replaces the space with %20 which is space equivalent in url
+		display.setText(new SimpleDateFormat("EEEE MMMMM dd, yyyy").format(Calendar.getInstance().getTime()) + "\n\n");
 		String search = new SimpleDateFormat("MMMMM%20dd").format(Calendar.getInstance().getTime());
 		GetData get = new GetData("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&explaintext&titles=" + search + "&redirects=");
 		get.start();
@@ -128,26 +131,28 @@ class SearchAnything{
 				end = raw_data.indexOf("\"}", start+1);
 				data = raw_data.substring(start, end);
 				data = data.replace("\\n", "\n").replace("\\\"", "\"");
+				data = data.replace("===\n", "===\n\n");
+				data = data.replace(".\n", ".\n\n");
 
 				if(data.contains("may refer to:")){   // "If may refer to:" string occurs then output the following text
-					display.setText("Data not found for this keyword");
+					display.append("Data not found for this keyword");
 					return;
 				}
 
 				// If missing key occurs then data not found
 				if(!raw_data.contains("\"missing\":"))
-					display.setText(data);
+					display.append(data);
 				else
-					display.setText("Data not found try to type keyword correctly without any spelling mistakes");
+					display.append("Data not found try to type keyword correctly without any spelling mistakes");
 
 				display.setCaretPosition(0);
 
 			}catch (java.net.UnknownHostException e){
 				JOptionPane.showMessageDialog(null, "Check Your Internet Connection", "Error", JOptionPane.ERROR_MESSAGE);
-				display.setText("Check Your Internet Connection");
+				display.append("Check Your Internet Connection");
 			}catch(Exception e){
 				JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
-				display.setText(e.toString());
+				display.append(e.toString());
 			}
 
 		}
