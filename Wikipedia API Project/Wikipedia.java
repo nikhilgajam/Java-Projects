@@ -7,20 +7,8 @@ import java.util.regex.Pattern;
 public class Wikipedia{
 	// This class gets the data from internet it takes some time that's why we are using thread
 
-	private String keyword;
 	private String title = "Run \"getSummary()\" or \"getPage()\" first then try using getTitle() to get the title.";
 	private String data;
-
-	public Wikipedia(String keyword){
-		// link variable holds the link to request
-		this.keyword = keyword;
-		if(!this.keyword.equals("")){
-			this.keyword = this.keyword.toLowerCase().replaceAll(" ", "%20");  // %20 is equivalent to space in url
-		}else{
-			title = "Enter correct keyword";
-			data = "Enter correct keyword";
-		}
-	}
 
 	// Requests the wikipedia page
 	private void getData(String link){
@@ -124,15 +112,29 @@ public class Wikipedia{
 	}
 
 	// Returns summary
-	public String getSummary(){
-		getData("https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exlimit=max&explaintext&exintro&titles=" + keyword + "&redirects=");
-		return data;
+	public String getSummary(String keyword){
+		if(!keyword.equals("")){
+			keyword = keyword.toLowerCase().replaceAll(" ", "%20");  // %20 is equivalent to space in url
+			getData("https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exlimit=max&explaintext&exintro&titles=" + keyword + "&redirects=");
+			return data;
+		}else{
+			title = "Keyword string is empty";
+			data = "Keyword string is empty";
+			return data;
+		}
 	}
 
 	// Returns the entire data
-	public String getPage(){
-		getData("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&explaintext&titles=" + keyword + "&redirects=");
-		return data;
+	public String getPage(String keyword){
+		if(!keyword.equals("")){
+			keyword = keyword.toLowerCase().replaceAll(" ", "%20");  // %20 is equivalent to space in url
+			getData("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&explaintext&titles=" + keyword + "&redirects=");
+			return data;
+		}else{
+			title = "Keyword string is empty";
+			data = "Keyword string is empty";
+			return data;
+		}
 	}
 
 
