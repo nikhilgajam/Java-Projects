@@ -1,14 +1,13 @@
 Wikipedia API:
 =============
-
 Place this java program in the same directory as the main program and create an object
+
 
 This API has 3 methods:
 ======================
+getSummary(String keyword)
 
-getSummary()
-
-getPage()
+getPage(String keyword)
 
 getTitle()    // In order to use this method you should use any one of the above methods
 
