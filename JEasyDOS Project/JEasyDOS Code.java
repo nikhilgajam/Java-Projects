@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -22,6 +21,8 @@ public class Jp {
 
 class JEasyDOS{
 
+	// Variables
+	JFrame window;
 	JRadioButton yes_fullscreen_rb, no_fullscreen_rb;
 	JTextField dir_box;
 	JMenuBar menu_bar;
@@ -31,7 +32,7 @@ class JEasyDOS{
 	public JEasyDOS(){
 
 		// Window
-		JFrame window = new JFrame("JEasyDOS");
+		window = new JFrame("JEasyDOS");
 		window.setLayout(new BorderLayout());
 
 		// Icon
@@ -103,6 +104,7 @@ class JEasyDOS{
 		dir_box.setBackground(Color.decode("#993e1c"));
 		dir_box.addMouseListener(new MouseAdapter() {   // Clearing the dir_box when mouse is clicked on it
 			public void mouseClicked(MouseEvent e) {
+				// Whenever you click on the directory box string inside the box will be replaced by empty string("")
 				dir_box.setText("");
 			}
 		});
@@ -209,7 +211,7 @@ class JEasyDOS{
 		try{
 			// Open file box
 			JFileChooser jc = new JFileChooser();
-			jc.showOpenDialog(null);
+			jc.showOpenDialog(window);
 			path = jc.getSelectedFile().getAbsolutePath().toString().toLowerCase();
 		}catch(Exception e){
 			JOptionPane.showMessageDialog(null, "Select A Correct DOS Executable With Extension (.exe) or (.com) or (.bat)", "Error", JOptionPane.ERROR_MESSAGE);
@@ -256,6 +258,7 @@ class JEasyDOS{
 	// Help methods
 	private void showHelp(){
 
+		// Displays help message box
 		JOptionPane.showMessageDialog(null, "Program Manager Button : You Can Add Programs To Browse Box To Access Them Later Quickly.\n" +
 				"Load DOS Program Button: Will Open A Select Box To Run A DOS Program And That DOS Will Be Closed As Soon As You Quit The Program.\n" +
 				"Default DOS Window Button : Will Open DOS With Default Directory.\n" +
@@ -267,6 +270,7 @@ class JEasyDOS{
 
 	private void dosHelp(){
 
+		// Displays dos help message box
 		try {
 			Runtime.getRuntime().exec("cmd /K \".\\DOSBox\\Manual\\Manual.html && exit\"");
 		} catch (Exception e) {
@@ -277,6 +281,7 @@ class JEasyDOS{
 
 	private void commandsHelp(){
 
+		// Displays comands help message box
 		try {
 			Runtime.getRuntime().exec("cmd /K \"start https://www.dosbox.com/wiki/Commands && exit\"");
 		} catch (Exception e) {
@@ -287,6 +292,7 @@ class JEasyDOS{
 
 	private void whereToHelp(){
 
+		// Displays where to help message box
 		JOptionPane.showMessageDialog(null, "Games: https://www.dosgames.com/\n" +
 				"Programs: https://archive.org/details/softwarelibrary_msdos\n" +
 				"Use google to get more programs and games.", "Where To Download DOS Programs", JOptionPane.PLAIN_MESSAGE);
@@ -295,6 +301,7 @@ class JEasyDOS{
 
 	private void howToHelp(){
 
+		// Displays how to help message box
 		JOptionPane.showMessageDialog(null, "To run many lines of DOS code then,\n" +
 				"You can create a .BAT file to execute many DOS commands at once.", "How To Run Script", JOptionPane.PLAIN_MESSAGE);
 
@@ -302,6 +309,7 @@ class JEasyDOS{
 
 	private void aboutUs(){
 
+		// Displays about us message box
 		JOptionPane.showMessageDialog(null, "JEasyDOS Version 1.0\nDeveloped By Nikhil", "About Us", JOptionPane.PLAIN_MESSAGE);
 
 	}
@@ -311,6 +319,7 @@ class JEasyDOS{
 	// Program manager window class
 	class ProgramManager{
 
+		JFrame w;
 		JList<String> listbox;
 		TreeMap<String, String> list;
 		File file = new File("Data.csv");  // file that stores the program manager data
@@ -318,7 +327,7 @@ class JEasyDOS{
 		ProgramManager(){
 
 			// Window
-			JFrame w = new JFrame("JEasyDOS Program Manager");
+			w = new JFrame("JEasyDOS Program Manager");
 			w.setLayout(new BorderLayout());
 			ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("images/icon.png")));
 			w.setIconImage(icon.getImage());
@@ -339,6 +348,15 @@ class JEasyDOS{
 			listbox.setBackground(Color.decode("#333333"));
 			listbox.setSelectionForeground(Color.decode("#e6e8eb"));
 			listbox.setSelectionBackground(Color.decode("#993e1c"));
+			listbox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);  // Only one item should be selected
+			listbox.addKeyListener(new KeyAdapter() {
+				public void keyTyped(KeyEvent e) {
+					if(e.getKeyChar() == 10)
+						load();  // Enter = 10
+					else if(e.getKeyChar() == 127)
+						del();  // Delete = 127
+				}
+			});
 			w.add(new JScrollPane(listbox), BorderLayout.CENTER);
 
 			// Buttons panel
@@ -384,6 +402,8 @@ class JEasyDOS{
 					return;
 				}
 
+				int check = 0;
+
 				FileReader read = new FileReader(file);
 				BufferedReader br = new BufferedReader(read);
 				String temp;
@@ -394,9 +414,15 @@ class JEasyDOS{
 					arr = temp.split(", "); // Splitting the string a ,(comma)
 					list.put(arr[0], arr[1]);     // Inserting data into list(TreeMap)
 					temp = br.readLine();         // Reading a line from data.csv
+					check = 1;
 				}
 
-				listbox.setListData(list.keySet().toArray(new String[0]));  // Updating the listbox(JList)
+				// If loop executes then this block should be executed
+				if(check == 1){
+					listbox.setListData(list.keySet().toArray(new String[0]));  // Updating the listbox(JList)
+					listbox.grabFocus();
+					listbox.setSelectedIndex(0);
+				}
 
 			}catch(Exception e){
 				e.printStackTrace();
@@ -415,6 +441,8 @@ class JEasyDOS{
 			}else{
 				String path = list.get(selected_val);
 				openDOS("DOSBox\\DOSBox.exe \"" + path + "\" -noconsole");
+				// Closes the program manager after loading the program
+				w.dispose();
 			}
 
 		}
@@ -423,15 +451,24 @@ class JEasyDOS{
 
 			try{
 
+				// Path and name strings
 				String name = "", s_path = "";
 
-				name = JOptionPane.showInputDialog(null, "Enter Program Title:", "JEasyDOS", JOptionPane.PLAIN_MESSAGE);
+				name = JOptionPane.showInputDialog(null, "Enter A Program Title:", "JEasyDOS", JOptionPane.PLAIN_MESSAGE);
 
+				// Title entered by the user is already in TreeMap should not be added
+				if(list.get(name) != null){
+					JOptionPane.showMessageDialog(null, "Don't enter existing title name", "Warning", JOptionPane.WARNING_MESSAGE);
+					return;
+				}
+
+				// Commas are not accepted in the title name
 				if(name.contains(",")){
 					JOptionPane.showMessageDialog(null, "Don't use ,(comma) in the title", "Warning", JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 
+				// If the entered title or name is null or a null string then it throws exception and message in the except block is displayed
 				if(name.equals("null") || name.equals(""))
 					throw new Exception();
 
@@ -488,6 +525,7 @@ class JEasyDOS{
 	class Settings{
 
 		Settings(){
+
 			// Window
 			JFrame w = new JFrame("JEasyDOS Settings");
 			w.setLayout(new BorderLayout());
@@ -552,6 +590,7 @@ class JEasyDOS{
 
 		private void optionsOpen(){
 
+			// This method opens the dosbox options in a notepad
 			try {
 				Runtime.getRuntime().exec("cmd /K \"cd DOSBox && \"DOSBox 0.74-3 Options\" \"");
 			}catch(Exception e) {
@@ -562,6 +601,7 @@ class JEasyDOS{
 
 		private void resetOptions(){
 
+			// This method resets the dosbox options
 			try {
 				Runtime.getRuntime().exec("cmd /K \" cd DOSBox && \"Reset Options\" \"");
 				JOptionPane.showMessageDialog(null, "Options Reset Completed", "JEasyDOS", JOptionPane.ERROR_MESSAGE);
@@ -573,6 +613,7 @@ class JEasyDOS{
 
 		private void resetKeyMapper(){
 
+			// This method resets the dosbox key mapper
 			try {
 				Runtime.getRuntime().exec("cmd /K \" cd DOSBox && \"Reset KeyMapper\" \"");
 				JOptionPane.showMessageDialog(null, "KeyMapper Reset Completed", "JEasyDOS", JOptionPane.ERROR_MESSAGE);
