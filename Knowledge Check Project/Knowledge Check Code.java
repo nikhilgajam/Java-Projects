@@ -36,7 +36,7 @@ class KnowledgeCheck{
 	JMenu help_menu, settings_menu, about_menu;
 	JMenuItem help, open_settings, about_us;
 	String data = "", question = "", correct_option = "", answer_check = "";
-	int ques_category = 9, correct_option_index = 0;
+	int ques_category = 9, correct_option_index = -1;
 	long correct_score = 0, wrong_score = 0;
 	String ques_difficulty = "";  // easy or medium or hard
 	String question_type = "multiple";  //  multiple or boolean
@@ -283,20 +283,25 @@ class KnowledgeCheck{
 
 	private void validate(int num){
 
-		if(num == correct_option_index){
-			correct_score++;
-			if(sound_var){
-				playAudio("sounds/correct.wav");
+		if(correct_option_index != -1){
+			if(num == correct_option_index){
+				correct_score++;
+				if(sound_var){
+					playAudio("sounds/correct.wav");
+				}
+			}else{
+				wrong_score++;
+				if(sound_var){
+					playAudio("sounds/wrong.wav");
+				}
 			}
-		}else{
-			wrong_score++;
-			if(sound_var){
-				playAudio("sounds/wrong.wav");
-			}
-		}
 
-		score_lbl.setText("Correct: " + correct_score + "                                               Wrong: " + wrong_score);
-		displayAndLoadNextQuestion();
+			score_lbl.setText("Correct: " + correct_score + "                                               Wrong: " + wrong_score);
+			displayAndLoadNextQuestion();
+		}else{
+			JOptionPane.showMessageDialog(window, "Question is not yet loaded, wait till it loads",
+					"Warning", JOptionPane.WARNING_MESSAGE);
+		}
 
 	}
 
@@ -309,7 +314,7 @@ class KnowledgeCheck{
 			clip.open(audioStream);
 			clip.start();
 		}catch(Exception e){
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(window, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 
 	}
@@ -337,6 +342,9 @@ class KnowledgeCheck{
 		JOptionPane.showMessageDialog(window, "Knowledge Check Version 1.0\nDeveloped By Nikhil", "About Us", JOptionPane.PLAIN_MESSAGE);
 
 	}
+
+
+	// Inner Classes
 
 
 	// LoadQuestion inner class and it extends Thread class
@@ -397,7 +405,7 @@ class KnowledgeCheck{
 					matcher.appendTail(sb);
 					raw_data = sb.toString();
 				}catch(Exception e){
-					System.out.println(e.toString());
+					JOptionPane.showMessageDialog(window, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 				}
 
 				// Unescaping the HTML entities
@@ -417,10 +425,12 @@ class KnowledgeCheck{
 				}
 
 			}catch (java.net.UnknownHostException e){
-				JOptionPane.showMessageDialog(null, "Check Your Internet Connection", "Error", JOptionPane.ERROR_MESSAGE);
-				question_display.setText("Check Your Internet Connection");
+				question_display.setText("Check Your Internet Connection And Restart The Program");
+				correct_option_index = -1;  // Correct option index is going to be -1 when the question is not loaded completely
 			}catch(Exception e){
-				question_display.setText(e.toString());
+				question_display.setText("Check Your Internet Connection And Restart The Program");
+				JOptionPane.showMessageDialog(window, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+				correct_option_index = -1;  // Correct option index is going to be -1 when the question is not loaded completely
 			}
 
 		}
