@@ -40,6 +40,7 @@ class KnowledgeCheck{
 	long correct_score = 0, wrong_score = 0;
 	String ques_difficulty = "";  // easy or medium or hard
 	String question_type = "multiple";  //  multiple or boolean
+	int ques_category_selected = 0, ques_difficulty_selected = 0, ques_type_selected = 0;
 	ArrayList<String> options = new ArrayList<>();
 	boolean sound_var = true;
 
@@ -62,11 +63,13 @@ class KnowledgeCheck{
 
 		// Title Label
 		JLabel title = new JLabel("Knowledge Check");
-		title.setFont(new Font("Rockwell", Font.PLAIN, 40));
+		title.setFont(new Font("Times New Roman", Font.BOLD, 40));
 		title.setOpaque(true);
 		title.setHorizontalAlignment(JLabel.CENTER);
 		title.setForeground(Color.decode("#e6e8eb"));
 		title.setBackground(Color.decode("#333333"));
+
+		// Adding title label to the window in the north(top) position
 		window.add(title, BorderLayout.NORTH);
 
 		// Display Panel
@@ -112,6 +115,7 @@ class KnowledgeCheck{
 		prev_ans_display.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));   // Changing cursor to arrow
 		display_panel.add(new JScrollPane(prev_ans_display));
 
+		// Adding display panel to the window in the center position
 		window.add(display_panel, BorderLayout.CENTER);
 
 		// Button panel
@@ -181,23 +185,31 @@ class KnowledgeCheck{
 		// Adding menu bar to window
 		window.setJMenuBar(menu_bar);
 
-		// Set all components not focusable to make this window keyListener work
+		// Set all components not focusable to make this window KeyListener work
 		window.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				int key = e.getKeyChar();
-				if(key == '1' || key == 'A' || key == 'a')
+
+				// Binding to 1, 2, 3, 4, A. B, C, D, a, b, c, d keys
+				if(key == '1' || key == 'A' || key == 'a'){
 					validate(0);
-				else if(key == '2' || key == 'B' || key == 'b')
+				}else if(key == '2' || key == 'B' || key == 'b'){
 					validate(1);
-				if(question_type.equals("multiple")){
-					if(key == '3' || key == 'C' || key == 'c')
+				}else if(key == '3' || key == 'C' || key == 'c'){
+					if(question_type.equals("multiple")){
 						validate(2);
-					else if(key == '4' || key == 'D' || key == 'd')
+					}else{
+						JOptionPane.showMessageDialog(window, "You Need To Use 1, 2 (OR) A, B Buttons When " +
+								"True/False Type Is Selected", "Warning", JOptionPane.WARNING_MESSAGE);
+					}
+				}else if(key == '4' || key == 'D' || key == 'd'){
+					if(question_type.equals("multiple")) {
 						validate(3);
-				}else{
-					JOptionPane.showMessageDialog(window, "You Need To Use 1, 2 (OR) A, B Buttons When " +
-							"True/False Type Is Selected", "Warning", JOptionPane.WARNING_MESSAGE);
+					}else{
+						JOptionPane.showMessageDialog(window, "You Need To Use 1, 2 (OR) A, B Buttons When " +
+								"True/False Type Is Selected", "Warning", JOptionPane.WARNING_MESSAGE);
+					}
 				}
 			}
 		});
@@ -215,9 +227,11 @@ class KnowledgeCheck{
 
 	private void displayAndLoadNextQuestion(){
 
+		correct_option_index = -1;  // Correct option index is going to be -1 when the question is not loaded completely
+
 		// Previous answer display
 		if(!question.equals("")){
-			answer_check = question + "  (Ans: " + correct_option + ")";
+			answer_check = question + "\n(Ans: " + correct_option + ")";
 			prev_ans_display.setText("");
 			prev_ans_display.setText(answer_check);
 		}
@@ -329,9 +343,9 @@ class KnowledgeCheck{
 
 		JOptionPane.showMessageDialog(window, "Knowledge Check Is A Program Which Will Display Questions " +
 				"Related To Various Categories.\n" +
-				"Settings : You Can Turn Sound On Or Off And You Can Select (Category, Difficulty," +
+				"Settings : You Can Turn Sound On Or Off, Change Text Size And You Can Select (Category, Difficulty," +
 				"Type) Of The Questions By Clicking On The Settings Menu.\n" +
-				"Selecting Options : You Can Either click On The Option Buttons (OR) 1, 2, 3, 4 or " +
+				"Selecting Options : You Can Either Click On The Option Buttons (OR) 1, 2, 3, 4 or " +
 				"A, B, C, D Keys To Select An Option.\n" +
 				"Knowledge Check Needs Internet Connection.\n", "Help", JOptionPane.PLAIN_MESSAGE);
 
@@ -359,10 +373,16 @@ class KnowledgeCheck{
 			this.var = var;
 
 			if(ques_difficulty.equals("")){
-				link = "https://opentdb.com/api.php?amount=1&category=" + ques_category + "&type=" + question_type;  // Getting the data from Open Trivia Database
+
+				if(ques_category_selected == 0)
+					link = "https://opentdb.com/api.php?amount=1" + "&type=" + question_type;  // Getting the data from Open Trivia Database
+				else
+					link = "https://opentdb.com/api.php?amount=1&category=" + ques_category + "&type=" + question_type;  // Getting the data from Open Trivia Database
+
 			}else{
 				link = "https://opentdb.com/api.php?amount=1&category=" + ques_category + "&difficulty=" + ques_difficulty + "&type=" + question_type;  // Getting the data from Open Trivia Database
 			}
+
 		}
 
 		// LoadQuestion class methods
@@ -370,7 +390,6 @@ class KnowledgeCheck{
 		public void run(){
 
 			try{
-
 				// Used in loop to make a string
 				StringBuilder str = new StringBuilder();
 
@@ -391,7 +410,6 @@ class KnowledgeCheck{
 
 
 				String raw_data = str.toString();
-//				System.out.println(raw_data);
 
 				// Converts non-unicode characters to unicode like \\u2013 to \u2013
 				try{
@@ -417,8 +435,10 @@ class KnowledgeCheck{
 					raw_data = raw_data;
 				}
 
+				// This replaces \/ to /
+				raw_data = raw_data.replace("\\/", "/");
+
 				data = raw_data;
-//				question_display.append("\n" + data);
 
 				if(var == 1){
 					displayAndLoadNextQuestion();
@@ -444,7 +464,7 @@ class KnowledgeCheck{
 		JFrame w;
 		JComboBox<String> categories_cb, difficulty_cb, type_cb;
 		JCheckBox sound_checkbox;
-		JButton change_btn;
+		JButton change_btn, text_size_btn;
 
 		Settings(){
 
@@ -461,6 +481,8 @@ class KnowledgeCheck{
 			title.setHorizontalAlignment(JLabel.CENTER);
 			title.setForeground(Color.decode("#e6e8eb"));
 			title.setBackground(Color.decode("#333333"));
+
+			// Adding title label to the settings window in the north(top) position
 			w.add(title, BorderLayout.NORTH);
 
 			// Buttons panel
@@ -481,6 +503,7 @@ class KnowledgeCheck{
 			categories_cb.setAlignmentX(Component.CENTER_ALIGNMENT);
 			categories_cb.setForeground(Color.decode("#e6e8eb"));
 			categories_cb.setBackground(Color.decode("#333333"));
+			categories_cb.setSelectedIndex(ques_category_selected);
 			components_panel.add(categories_cb);
 			components_panel.add(Box.createRigidArea(new Dimension(5, 10)));  // Space between the components
 
@@ -490,6 +513,7 @@ class KnowledgeCheck{
 			difficulty_cb.setAlignmentX(Component.CENTER_ALIGNMENT);
 			difficulty_cb.setForeground(Color.decode("#e6e8eb"));
 			difficulty_cb.setBackground(Color.decode("#333333"));
+			difficulty_cb.setSelectedIndex(ques_difficulty_selected);
 			components_panel.add(difficulty_cb);
 			components_panel.add(Box.createRigidArea(new Dimension(5, 10)));  // Space between the components
 
@@ -499,9 +523,20 @@ class KnowledgeCheck{
 			type_cb.setAlignmentX(Component.CENTER_ALIGNMENT);
 			type_cb.setForeground(Color.decode("#e6e8eb"));
 			type_cb.setBackground(Color.decode("#333333"));
+			type_cb.setSelectedIndex(ques_type_selected);
 			components_panel.add(type_cb);
 			components_panel.add(Box.createRigidArea(new Dimension(5, 10)));  // Space between the components
 
+			// Change display text size button and its configurations
+			text_size_btn = new JButton("Change Display Text Size");
+			text_size_btn.setAlignmentX(JButton.CENTER_ALIGNMENT);
+			text_size_btn.setForeground(Color.decode("#e6e8eb"));
+			text_size_btn.setBackground(Color.decode("#333333"));
+			text_size_btn.addActionListener(e -> changeTextSize());
+			components_panel.add(text_size_btn);
+			components_panel.add(Box.createRigidArea(new Dimension(5, 16)));  // Space between the components
+
+			// Sound check box and its configurations
 			sound_checkbox = new JCheckBox("Sound");
 			sound_checkbox.setAlignmentX(Component.CENTER_ALIGNMENT);
 			sound_checkbox.setForeground(Color.decode("#e6e8eb"));
@@ -516,6 +551,7 @@ class KnowledgeCheck{
 			else
 				sound_checkbox.setSelected(false);
 
+			// Change button and its color, configurations
 			change_btn = new JButton("Apply Settings");
 			change_btn.setAlignmentX(JButton.CENTER_ALIGNMENT);
 			change_btn.setForeground(Color.decode("#e6e8eb"));
@@ -523,6 +559,7 @@ class KnowledgeCheck{
 			change_btn.addActionListener(e -> change());
 			components_panel.add(change_btn);
 
+			// Adding component panel to settings window in the center position
 			w.add(components_panel, BorderLayout.CENTER);
 
 			// Window settings
@@ -538,31 +575,45 @@ class KnowledgeCheck{
 
 		private void change(){
 
+			// If question is not loaded then we cannot make any changes
+			if(correct_option_index == -1){
+				JOptionPane.showMessageDialog(w, "Cannot apply changes util present question is loaded",
+						"Warning", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
 			// Count variable will keep a count that settings are changed or not
 			int selected_count = 0, index;
 
+			// index variable will contain the selected JComboBox value
+
 			index = categories_cb.getSelectedIndex();
-			if(index != 0){
+			if(index != 0 && index != ques_category_selected){
 				// Categories start with index 9 and categories in the category_list start with index 1
 				ques_category = index + 8;
+				ques_category_selected = index;
 				selected_count++;
 			}
 
 			index = difficulty_cb.getSelectedIndex();
-			if(index != 0){
+			if(index != 0 && index != ques_difficulty_selected){
 				if(difficulty_cb.getItemAt(index).equals("Any Difficulty"))
 					ques_difficulty = "";
 				else
 					ques_difficulty = difficulty_cb.getItemAt(index).toLowerCase();
+
+				ques_difficulty_selected = index;
 				selected_count++;
 			}
 
 			index = type_cb.getSelectedIndex();
-			if(index != 0){
+			if(index != 0 && index != ques_type_selected){
 				if(type_cb.getItemAt(index).equals("Multiple Choice"))
 					question_type = "multiple";
 				else
 					question_type = "boolean";
+
+				ques_type_selected = index;
 				selected_count++;
 			}
 
@@ -570,10 +621,39 @@ class KnowledgeCheck{
 				// Loads a question
 				new LoadQuestion(1).start();
 				question_display.setText("Wait a moment...");
+				correct_option_index = -1;  // Correct option index is going to be -1 when the question is not loaded completely
 			}
 
-			// Closes the settings window
-			w.dispose();
+			w.dispose();  // Closes the settings window
+
+		}
+
+		private void changeTextSize(){
+
+			// This method will change the size of the question_display and prev_ans_display
+			String size_str = JOptionPane.showInputDialog(w, "Enter Text Size (22-50): ",
+					"Knowledge Check", JOptionPane.PLAIN_MESSAGE);
+
+			// If cancel is pressed JOptionPane will be closed and this method will be exited
+			if(size_str == null)
+				return;
+
+			// If nothing is entered and pressed ok then this if condition will be executed
+			if(size_str.equals("")){
+				JOptionPane.showMessageDialog(w, "Enter a valid number which is not null",
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}else{
+				int size = Integer.parseInt(size_str);
+
+				if(size<22 || size>50) {
+					JOptionPane.showMessageDialog(w, "Enter text sizes only in this range (22-50)",
+							"Error", JOptionPane.ERROR_MESSAGE);
+				}else{
+					question_display.setFont(new Font("Times New Roman", Font.PLAIN, size));
+					prev_ans_display.setFont(new Font("Times New Roman", Font.PLAIN, size-4));
+				}
+
+			}
 
 		}
 
@@ -591,5 +671,6 @@ class KnowledgeCheck{
 
 
 	}
+
 
 }
