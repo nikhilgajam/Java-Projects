@@ -5,13 +5,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.*;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +46,7 @@ class KnowledgeCheck{
 	ArrayList<String> options = new ArrayList<>();
 	boolean sound_var = true;
 
+	// Constructor
 	public KnowledgeCheck(){
 
 		// Window
@@ -225,6 +228,8 @@ class KnowledgeCheck{
 
 	}
 
+	// KnowledgeCheck class methods
+
 	private void displayAndLoadNextQuestion(){
 
 		correct_option_index = -1;  // Correct option index is going to be -1 when the question is not loaded completely
@@ -234,15 +239,6 @@ class KnowledgeCheck{
 			answer_check = question + "\n(Ans: " + correct_option + ")";
 			prev_ans_display.setText("");
 			prev_ans_display.setText(answer_check);
-		}
-
-		// Multiple and boolean settings
-		if(question_type.equals("boolean")){
-			btn3.setEnabled(false);
-			btn4.setEnabled(false);
-		}else{
-			btn3.setEnabled(true);
-			btn4.setEnabled(true);
 		}
 
 		int start, end;
@@ -589,7 +585,7 @@ class KnowledgeCheck{
 
 			index = categories_cb.getSelectedIndex();
 			if(index != 0 && index != ques_category_selected){
-				// Categories start with index 9 and categories in the category_list start with index 1
+				// Categories start with index 9 and categories in the category_list start with index 1 as 1st one is ComboBox placeholder
 				ques_category = index + 8;
 				ques_category_selected = index;
 				selected_count++;
@@ -608,11 +604,15 @@ class KnowledgeCheck{
 
 			index = type_cb.getSelectedIndex();
 			if(index != 0 && index != ques_type_selected){
-				if(type_cb.getItemAt(index).equals("Multiple Choice"))
+				if(type_cb.getItemAt(index).equals("Multiple Choice")){
 					question_type = "multiple";
-				else
+					btn3.setEnabled(true);  // Multiple and boolean type button settings
+					btn4.setEnabled(true);  // Multiple and boolean type button settings
+				}else{
 					question_type = "boolean";
-
+					btn3.setEnabled(false);  // Multiple and boolean type button settings
+					btn4.setEnabled(false);  // Multiple and boolean type button settings
+				}
 				ques_type_selected = index;
 				selected_count++;
 			}
