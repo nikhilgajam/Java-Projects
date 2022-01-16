@@ -45,7 +45,7 @@ class SearchAnything{
 
 		// Display textarea
 		display = new JTextArea("Welcome");
-		display.setFont(new Font("Rockwell", Font.PLAIN, 25));
+		display.setFont(new Font("Times New Roman", Font.PLAIN, 25));
 		display.setWrapStyleWord(true);
 		display.setLineWrap(true);
 		display.setBackground(new Color(53, 54, 58));
