@@ -1,0 +1,5 @@
+localhost:9090
+
+
+create class path in system variables to run servlet (lib/servlet-api.jar)
+E:\Softwares\Skype\Tom\Apache Software\Tomcat 8.5\lib\servlet-api.jar
