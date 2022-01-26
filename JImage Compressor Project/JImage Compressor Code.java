@@ -153,6 +153,9 @@ class JImageCompressor{
         quality_box.setToolTipText("Enter Image Compression Width");
         quality_box.setHorizontalAlignment(JTextField.CENTER);
         quality_box.setAlignmentX(Component.CENTER_ALIGNMENT);
+        quality_box.setColumns(40);
+        quality_box.setMinimumSize(quality_box.getPreferredSize());
+        quality_box.setMaximumSize(quality_box.getPreferredSize());
         quality_box.setForeground(Color.decode("#e6e8eb"));
         quality_box.setBackground(Color.decode("#993e1c"));
         quality_box.addKeyListener(new KeyAdapter() {
@@ -228,9 +231,8 @@ class JImageCompressor{
 
         // Window settings
         window.setVisible(true);
-        window.setSize(411, 506);
+        window.setSize(411, 521);
         window.setLocationRelativeTo(null);
-        window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     }
@@ -639,11 +641,9 @@ class JImageCompressor{
                 }
 
             }catch(Exception e){
-
                 status_bar.setText("[" + compression_counter + "/" + total_no_of_compressions + "] Image(s) Compressed & (Compression Stopped)");
                 JOptionPane.showMessageDialog(null, in_img_path + " is causing \n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
                 stop_compression = true;
-
             }
 
         }
