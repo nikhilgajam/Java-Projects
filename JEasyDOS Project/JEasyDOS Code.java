@@ -100,6 +100,9 @@ class JEasyDOS{
 		dir_box = new JTextField("To Mount A Drive, Paste The Path Here And Press Enter Key.");
 		dir_box.setToolTipText("To Mount A Drive, Paste The Path Here And Press Enter Key.");
 		dir_box.setAlignmentX(Component.CENTER_ALIGNMENT);
+		dir_box.setColumns(40);
+		dir_box.setMinimumSize(dir_box.getPreferredSize());
+		dir_box.setMaximumSize(dir_box.getPreferredSize());
 		dir_box.setForeground(Color.decode("#e6e8eb"));
 		dir_box.setBackground(Color.decode("#993e1c"));
 		dir_box.addMouseListener(new MouseAdapter() {   // Clearing the dir_box when mouse is clicked on it
@@ -182,9 +185,8 @@ class JEasyDOS{
 
 		// Window settings
 		window.setVisible(true);
-		window.setSize(450, 450);
+		window.setSize(450, 460);
 		window.setLocationRelativeTo(null);
-		window.setResizable(false);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	}
@@ -473,7 +475,7 @@ class JEasyDOS{
 					throw new Exception();
 
 				JFileChooser jc = new JFileChooser();
-				jc.showOpenDialog(null);
+				jc.showOpenDialog(w);
 				s_path = jc.getSelectedFile().getAbsolutePath().toString().toLowerCase();
 
 				if(s_path.contains(".exe") || s_path.contains(".com") || s_path.contains(".bat")){
@@ -499,7 +501,6 @@ class JEasyDOS{
 			try{
 
 				String name = listbox.getSelectedValue();
-
 				list.remove(name);  // Removing from treemap
 
 				FileWriter writer = new FileWriter(file);
@@ -574,7 +575,6 @@ class JEasyDOS{
 			sr_btn.setAlignmentX(Component.CENTER_ALIGNMENT);
 			sr_btn.addActionListener(e -> screenshotsRecs());
 			btn_panel.add(sr_btn);
-
 
 			w.add(btn_panel, BorderLayout.CENTER);
 
