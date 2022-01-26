@@ -324,6 +324,7 @@ class KnowledgeCheck{
 			clip.open(audioStream);
 			clip.start();
 		}catch(Exception e){
+			sound_var = false;
 			JOptionPane.showMessageDialog(window, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 
@@ -573,7 +574,7 @@ class KnowledgeCheck{
 
 			// If question is not loaded then we cannot make any changes
 			if(correct_option_index == -1){
-				JOptionPane.showMessageDialog(w, "Cannot apply changes util present question is loaded",
+				JOptionPane.showMessageDialog(w, "Cannot apply changes until present question is loaded",
 						"Warning", JOptionPane.WARNING_MESSAGE);
 				return;
 			}
@@ -638,9 +639,9 @@ class KnowledgeCheck{
 			if(size_str == null)
 				return;
 
-			// If nothing is entered and pressed ok then this if condition will be executed
-			if(size_str.equals("")){
-				JOptionPane.showMessageDialog(w, "Enter a valid number which is not null",
+			// If nothing is entered and pressed ok or non digit are there in the string then this if condition will be executed
+			if(size_str.equals("") || size_str.matches("\\D+")){
+				JOptionPane.showMessageDialog(w, "Enter a valid number",
 						"Error", JOptionPane.ERROR_MESSAGE);
 			}else{
 				int size = Integer.parseInt(size_str);
