@@ -160,16 +160,15 @@ class JSQLite{
         // Adding undo redo to query_box
         UndoManager undo_manager = new UndoManager();
         query_box.getDocument().addUndoableEditListener(undo_manager);
-        query_box.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
+        query_box.addKeyListener(new KeyAdapter(){
+            public void keyTyped(KeyEvent e){
                 try{
                     // CTRL+Z == 26
-                    if (e.getKeyChar() == 26) {
+                    if (e.getKeyChar() == 26){
                     undo_manager.undo();
                     }
                     // CTRL+Y == 25
-                    if (e.getKeyChar() == 25) {
+                    if (e.getKeyChar() == 25){
                         undo_manager.redo();
                     }
                 }catch(Exception ex){
