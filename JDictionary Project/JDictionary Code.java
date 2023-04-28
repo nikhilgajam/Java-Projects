@@ -1,4 +1,12 @@
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JScrollPane;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Color;
@@ -8,9 +16,9 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 
 public class Jp{
@@ -31,9 +39,10 @@ class JDictionary{
 	JTextField search_box;
 	JButton search_btn;
 	LinkedHashMap<String, String> dictionary = new LinkedHashMap<>();
-	ArrayList<String> keywords = new ArrayList<>();
+	LinkedList<String> keywords = new LinkedList<>();
 	int keyword_pointer = 0;
-	String onscreen_keywords = "";
+	String prev_typed_word = "";
+	boolean isAnswerDisplaying = false;
 
 	// Constructor
 	public JDictionary(){
@@ -81,21 +90,21 @@ class JDictionary{
 		search_box.addKeyListener(new KeyAdapter(){
 			@Override
 			public void keyTyped(KeyEvent e){
-				if(e.getKeyChar() == 10){
+				if(e.getKeyChar() == 10){  // Using enter key to perform getMeaning operation
 					getMeaning();
 					return;
 				}
 
 				new UpdateList().start();
 //				25 Redo, 26 Undo, 8 Backspace, 10 Enter
-//              System.out.println(e.getKeyChar() + " " + (int)e.getKeyChar());
+//              		System.out.println(e.getKeyChar() + " " + (int)e.getKeyChar());
 			}
 
 			@Override
 			public void keyPressed(KeyEvent e){
-				if(KeyEvent.VK_UP == e.getKeyCode()){
+				if(KeyEvent.VK_UP == e.getKeyCode()){   // Using up arrow key to perform arrowSelector operation
 					arrowSelector("up");
-				}else if(KeyEvent.VK_DOWN == e.getKeyCode()){
+				}else if(KeyEvent.VK_DOWN == e.getKeyCode()){  // // Using down arrow key to perform arrowSelector operation
 					arrowSelector("down");
 				}
 			}
@@ -106,14 +115,14 @@ class JDictionary{
 		search_btn.addActionListener(e -> getMeaning());
 		panel.add(search_btn, BorderLayout.EAST);
 
+		// Reading and storing the dictionary.data document
+		start();
+
 		// Window settings
 		window.setVisible(true);
 		window.setSize(910, 620);
 		window.setLocationRelativeTo(null);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		// Reading and storing the dictionary.data
-		start();
 
 	}
 
@@ -137,8 +146,7 @@ class JDictionary{
 		return ans.substring(0, ans.length()-1);
 	}
 
-
-	private void start(){
+	private synchronized void start(){
 		// Opening the dictionary.data, reading and storing the data in a dictionary
 		StringBuilder data = new StringBuilder();
 		try{
@@ -195,14 +203,16 @@ class JDictionary{
 			if(x == null){
 				count++;  // Increasing the count if answer not found
 			}else{
-				ans.add("*|░▒▓ " + i + " ▓▒░|* : ♯\n» " + x + "\n\n");  //adding to the set if answer found
+				ans.add("*|░▒▓ " + i + " ▓▒░|* :  ♯\n» " + x + "\n\n");  //adding to the set if answer found
 			}
 
 		}
 
+		// Setting answer display variable true
+		isAnswerDisplaying = true;
+
 		if(count == 4){
-			// Clearing the screen and showing not found message
-			display.setText("");
+			// Showing not found message
 			display.setText("Requested word not found.");
 		}else{
 			// Formatting the displaying answer with new line and arrow
@@ -222,18 +232,37 @@ class JDictionary{
 	private void arrowSelector(String arrow){
 		// This method is going to point arrow to the selected word on the display when up and down arrows are used
 
+		// If answer is getting displayed then previous typed word's search list will be displayed
+		if(isAnswerDisplaying){
+			// Setting answer display variable false
+			search_box.setText(prev_typed_word);
+			new UpdateList().start();
+			isAnswerDisplaying = false;
+			return;
+		}
+
 		// If input is a null string then do nothing
 		if(search_box.getText().isEmpty()){
 			return;
 		}
 
 		if(arrow.equals("up")){  // Up arrow button pressed
+			if(keyword_pointer == 0){  // When keyword_pointer is 0 then do nothing
+				return;
+			}
+
 			if(keyword_pointer > 0){
 				keyword_pointer--;
+				removeBelowPreviousArrow();
 			}
 		}else{  // Down arrow button pressed
+			if(keyword_pointer == keywords.size()-1){  // When keyword_pointer is 0 then do nothing
+				return;
+			}
+
 			if(keyword_pointer < keywords.size()-1){
 				keyword_pointer++;
+				removeAbovePreviousArrow();
 			}
 		}
 
@@ -244,7 +273,6 @@ class JDictionary{
 
 		// Making the pointer to point at the selected keyword when arrow up/down arrow keys are used
 		try{
-			display.setText(onscreen_keywords);  // Re-displaying the content on the screen
 			int pos = display.getLineStartOffset(keyword_pointer);  // Getting the keyword position
 			display.setCaretPosition(pos);  // Pointing to the selected word
 			display.insert("→  ", pos);  // Displaying arrow in front of selected word
@@ -256,24 +284,57 @@ class JDictionary{
 
 	}
 
+	private void removeBelowPreviousArrow(){
+		if(keyword_pointer + 1 < keywords.size()){
+			try{
+				int rem_pos_start = display.getLineStartOffset(keyword_pointer + 1);
+				int rem_pos_end = display.getLineEndOffset(keyword_pointer + 1);
+				display.replaceRange(display.getText(rem_pos_start, rem_pos_end-rem_pos_start).substring(3), rem_pos_start, rem_pos_end);
+			}catch(Exception e){
+				// Showing the error message
+				JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	private void removeAbovePreviousArrow(){
+//        if(keyword_pointer-1 == -1)
+//            return;
+
+		if(keyword_pointer-1 > -1){
+			try{
+				int rem_pos_start = display.getLineStartOffset(keyword_pointer-1);
+				int rem_pos_end = display.getLineEndOffset(keyword_pointer-1);
+				display.replaceRange(display.getText(rem_pos_start, rem_pos_end-rem_pos_start).substring(3), rem_pos_start, rem_pos_end);
+			}catch(Exception e){
+				// Showing the error message
+				JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
 	// Inner class
 
 	class UpdateList extends Thread{
 		// This inner class will update the contents on the display when you type in the input_box
 
-		public void run() {
+		public synchronized void run(){
 
 			String inp = search_box.getText();  // Getting the input data
+			prev_typed_word = inp;  // Storing the last typed word here
+			keywords.clear();
 
 			// input should not to be null string
 			if(!inp.isEmpty()) {
 				display.setText("");
-				keywords.clear();
+
+				int count = 0;
 
 				for (String i : dictionary.keySet()) {
 					// Searching all types of the given input
 					if (i.startsWith(inp) || i.startsWith(inp.toLowerCase()) || i.startsWith(toTitleCase(inp)) || i.startsWith(inp.toUpperCase())) {
 						keywords.add(i);
+						count++;
 					}
 
 				}
@@ -283,14 +344,22 @@ class JDictionary{
 					sb.append(i).append("\n");
 				}
 
-				onscreen_keywords = sb.toString().trim();  // Converting string builder to string and removing extra white spaces and newlines at front and back
-				display.setText(onscreen_keywords);
-				keyword_pointer = -1;  // Setting the keyword_pointer to -1 when list gets updated
+				// Display count storing string
+				String count_disp_string = "";
+
+				if(count == 1)
+					count_disp_string = "\n\n" + count + " Word Displayed";
+				else
+					count_disp_string = "\n\n" + count + " Words Displayed";
+
+				display.setText(sb.toString().trim() + count_disp_string);  // Converting string builder to string, removing extra white spaces and newlines at front and back and adding count_disp_string to the screen
 			}else{
 				// Clearing the screen and keywords list
 				display.setText("Keep Going...♪♫");
 				keywords.clear();
 			}
+
+			keyword_pointer = -1;  // Setting the keyword_pointer to -1 when list gets updated
 
 		}
 
