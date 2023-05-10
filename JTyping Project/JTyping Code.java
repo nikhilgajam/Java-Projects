@@ -5,9 +5,6 @@ import javax.swing.JPanel;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JFileChooser;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.KeyStroke;
@@ -15,11 +12,18 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.DefaultCaret;
+import javax.swing.text.Utilities;
+import javax.swing.ImageIcon;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,10 +35,10 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.text.SimpleDateFormat;
-import java.util.Objects;
 import java.util.TimerTask;
-import java.util.Timer;
+import java.util.Objects;
 import java.util.Random;
+import java.util.Timer;
 import java.util.Date;
 
 
@@ -42,7 +46,7 @@ public class Jp{
 
     public static void main(String[] args){
 
-        new JTyping();
+        new JTyping();  // Anonymous object
 
     }
 
@@ -52,28 +56,23 @@ public class Jp{
 class JTyping{
 
     // Widgets
-    JFrame window;
-    JLabel title_lbl, time_display_lbl;
-    JTextArea display;
-    JScrollPane display_scroll_pane;
-    JComboBox<String> text_name_box, time_box;
-    JMenuBar menu_bar;
-    JMenu about_menu;
-    JMenuItem about_menu_item;
-    Timer timer;
+    private final JFrame window;
+    private final JLabel title_lbl, time_display_lbl;
+    private final JTextArea display;
+    private final JScrollPane display_scroll_pane;
+    private final JComboBox<String> text_name_box, time_box;
+    private Timer timer;
 
     // Variables
-    String all_chars = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n`~!@#$%^&*()-_=+\\|{}[]:;\"',<>./?'";
-    String[] text_names = {"Astronauts", "Babbage", "Baseball", "Cast", "Credits", "DNA", "Fables", "Franklin", "Girl", "Hill", "Hubble", "Insects", "Jane", "Lincoln", "Netiquette", "Pangrams", "Photo", "Rabbits", "Strebel", "Yosemite", "ZNumbers1", "ZNumbers2", "Custom Text"};
-    String[] time_names = {"46 Seconds", "1 Minute", "2 Minutes", "3 Minutes", "5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "46 Minutes", "1 Hours", "2 Hours", "3 Hours", "Custom Time"};
-    int char_pointer = 0, char_correct = 0, char_error = 0, best_wpm = 0, time_in_seconds = 0, time_counter = 0;
-    double program_used_time = 0;
-    String text_data = "";
-    String data_store_file_name = "Store.data";
-    String date_time_stored = "";
-    boolean typing_started = false, stop_typing = true, sound_var = true, is_ready = false;
-    HighlightPainter greenHighlighter = new DefaultHighlighter.DefaultHighlightPainter(new Color(60, 128, 78));
-    HighlightPainter redHighlighter = new DefaultHighlighter.DefaultHighlightPainter(new Color(220, 4, 4));
+    private final String all_chars = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n`~!@#$%^&*()-_=+\\|{}[]:;\"',<>./?'";
+    private final String[] text_names = {"Astronauts", "Babbage", "Baseball", "Cast", "Credits", "DNA", "Fables", "Franklin", "Girl", "Hill", "Hubble", "Insects", "Jane", "Lincoln", "Netiquette", "Pangrams", "Photo", "Rabbits", "Strebel", "Yosemite", "ZNumbers1", "ZNumbers2", "Custom Text"};
+    private final String[] time_names = {"46 Seconds", "1 Minute", "2 Minutes", "3 Minutes", "5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "46 Minutes", "1 Hours", "2 Hours", "3 Hours", "Custom Time"};
+    private int char_pointer = 0, correct_chars = 0, error_chars = 0, best_wpm = 0, time_in_seconds = 0, time_counter = 0, display_font_size = 25, time_box_selected_index = 1, line_no = 0, win_w = 1000, win_h = 670;
+    private double program_used_time = 0;
+    private String text_data = "", data_store_file_name = "store.data", date_time_stored = "", display_font_style = "Times New Roman";
+    private boolean typing_started = false, stop_typing = true, sound_var = true, is_ready = false;
+    private final HighlightPainter greenHighlighter = new DefaultHighlighter.DefaultHighlightPainter(new Color(60, 128, 78));
+    private final HighlightPainter redHighlighter = new DefaultHighlighter.DefaultHighlightPainter(new Color(220, 4, 4));
 
     // Constructor
     public JTyping(){
@@ -97,11 +96,11 @@ class JTyping{
 
         // Display textarea
         display = new JTextArea();
-        display.setFont(new Font("Times New Roman", Font.PLAIN, 25));
+        display.setFont(new Font(display_font_style, Font.PLAIN, display_font_size));
         display.setWrapStyleWord(true);
         display.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));   // Changing cursor to arrow
         display.getCaret().setBlinkRate(0);  // Making the cursor to not blink
-        DefaultCaret caret = (DefaultCaret) display.getCaret();
+        DefaultCaret caret = (DefaultCaret) display.getCaret();   // These three lines are important to get the changes get reflected without typing on the display area
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         display.setCaret(caret);
         display.setLineWrap(true);
@@ -120,14 +119,16 @@ class JTyping{
         display.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "none");  // Making delete to not get triggered
         display.getInputMap().put(KeyStroke.getKeyStroke("PAGE_UP"), "none");  // Making delete to not get triggered
         display.getInputMap().put(KeyStroke.getKeyStroke("PAGE_DOWN"), "none");  // Making delete to not get triggered
-        display.addMouseListener(new MouseAdapter() {
+        display.addMouseListener(new MouseAdapter(){
+            // When you click any mouse button then the caret is pointed to current position
             @Override
-            public void mousePressed(MouseEvent e) {
+            public void mousePressed(MouseEvent e){
                 super.mousePressed(e);
                 display.setCaretPosition(char_pointer);
             }
+
             @Override
-            public void mouseReleased(MouseEvent e) {
+            public void mouseReleased(MouseEvent e){
                 super.mousePressed(e);
                 display.setCaretPosition(char_pointer);
             }
@@ -161,13 +162,13 @@ class JTyping{
 
         // Time combo box
         time_box = new JComboBox<>(time_names);
-        time_box.setSelectedIndex(1);
         time_box.setToolTipText("Select a time interval");
         time_box.setFocusable(false);
+        time_box.setFont(new Font("Times New Roman", Font.PLAIN, 18));
         time_box.addActionListener(e -> textOrTimeSelected());
-        time_box.addMouseListener(new MouseAdapter() {
+        time_box.addMouseListener(new MouseAdapter(){
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e){
                 super.mouseClicked(e);
                 playSounds("sounds/click.wav");   // Playing the click sound when this box is clicked
             }
@@ -178,10 +179,11 @@ class JTyping{
         text_name_box = new JComboBox<>(text_names);
         text_name_box.setToolTipText("Select a typing text");
         text_name_box.setFocusable(false);
+        text_name_box.setFont(new Font("Times New Roman", Font.PLAIN, 18));
         text_name_box.addActionListener(e -> textOrTimeSelected());
-        text_name_box.addMouseListener(new MouseAdapter() {
+        text_name_box.addMouseListener(new MouseAdapter(){
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e){
                 super.mouseClicked(e);
                 playSounds("sounds/click.wav");   // Playing the click sound when this box is clicked
             }
@@ -191,7 +193,6 @@ class JTyping{
         // Time display label
         time_display_lbl = new JLabel("  0 Seconds ");
         time_display_lbl.setFont(new Font("Times New Roman", Font.PLAIN, 20));
-        time_display_lbl.setToolTipText("Displays the time when you start typing");
         panel.add(time_display_lbl, BorderLayout.EAST);
 
         // Reading and storing the dictionary.data document
@@ -206,9 +207,11 @@ class JTyping{
         });
 
         // Window settings
-        window.setSize(1000, 670);
+        window.setSize(win_w, win_h);
         window.setLocationRelativeTo(null);
         window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        ImageIcon img = new ImageIcon(Objects.requireNonNull(getClass().getResource("images/icon.png"))); // Icon
+        window.setIconImage(img.getImage());
         window.setVisible(true);
 
     }
@@ -222,47 +225,59 @@ class JTyping{
             // Playing the intro sound
             playSounds("sounds/intro.wav");
 
+            // store.data handling
+            String data;
+            File file = new File(data_store_file_name);
+
+            // Write the file if file doesn't exist
+            if(!file.exists()){
+                date_time_stored = new SimpleDateFormat("dd/MM/yyyy hh:mm a").format(new Date().getTime());
+
+                // File Data Sequence: window_width, window_height, font_style, font_size, best_wpm, program_used_time, time_box_selected_index, date_time_stored
+                writeOperation(data_store_file_name, win_w + "," + win_h + "," + display_font_style +"," + display_font_size + "," + best_wpm + "," + program_used_time + "," + time_box.getSelectedIndex() + "," + date_time_stored);
+            }
+
+            data = readOperation(data_store_file_name);  // Reading store.data
+            String[] arr = data.split(",");  // Separating the read string
+
+            // Storing the read data in the variables
+            win_w = Integer.parseInt(arr[0]);
+            win_h = Integer.parseInt(arr[1]);
+            display_font_style = arr[2];
+            display_font_size = Integer.parseInt(arr[3]);
+            best_wpm = Integer.parseInt(arr[4]);
+            program_used_time = Double.parseDouble(arr[5]);
+            time_box_selected_index = Integer.parseInt(arr[6]);
+            date_time_stored = arr[7];
+
             // Setting the random text
-            int rand_text_number = new Random().nextInt(text_names.length - 1);
+            int rand_text_number = new Random().nextInt(text_names.length - 1);  // All texts without custom option
             text_name_box.setSelectedIndex(rand_text_number);
             display.setCaretPosition(display.getDocument().getLength());
+
+            // Setting the time to time_box to selected index
+            time_box.setSelectedIndex(time_box_selected_index);
 
             // Setting the variables to their default values
             typing_started = false;
             stop_typing = true;
             is_ready = false;
 
-            // Store.data handling
-            String data = "";
-            File file = new File(data_store_file_name);
-
-            // Write the file if file doesn't exist
-            if (!file.exists()) {
-                date_time_stored = new SimpleDateFormat("dd/MM/yyyy hh:mm a").format(new Date().getTime());
-                writeOperation(data_store_file_name, best_wpm + "," + program_used_time + "," + date_time_stored);
-            }
-
-            data = readOperation(data_store_file_name);
-            String[] arr = data.split(",");
-            best_wpm = Integer.parseInt(arr[0]);
-            program_used_time = Double.parseDouble(arr[1]);
-            date_time_stored = arr[2];
-
             // Setting the initial text to the screen
-            display.setText("Welcome...\n\n" +
-                    "JTyping Is A Typing Practising And Analysing Program.\n" +
-                    "You Can Toggle The Sound On/Off By Pressing \"F6\" Button.\n" +
+            text_data = "Welcome...\n\n" +
+                    "JTyping Is A Typing Improvement And Analysis Program.\n" +
+                    "You Can Toggle The Sound On/Off By Pressing The \"F6\" Key.\n" +
                     "You Can Press \"ESC\" Key To Stop The Timer And Show Analysis.\n" +
-                    "You Can Select A Specific Time And Text Given In The Provided Boxes Below.\n" +
-                    "You Can Select Custom Time And Text By Using Custom Option Provided In Below Boxes.\n\n" +
+                    "You Can Select Any Time And Text Options Provided In The Picklists Given Below.\n" +
+                    "You Can Decrease/Increase Text Using \"F7\"/\"F8\" Keys And Change Style Using \"F11\" Key.\n" +
+                    "You Can Select Custom Time And Text By Choosing Custom Option Provided In The Picklist.\n\n" +
                     "Press \"F5\" To Start Typing The Randomly Selected Text.\n\n" +
-                    "Your Best WPM: " + best_wpm + " Words Per Minute\n" +
+                    "Your Best WPM : " + best_wpm + " Words Per Minute\n" +
                     "You Spent " + program_used_time + " Minutes Of Time Using JTyping Since " + date_time_stored + "\n\n\n" +
-                    "JTyping\nVersion 1.0\nDeveloped By Nikhil");
-
+                    "JTyping\nVersion 1.0\nDeveloped By Nikhil";
+            display.setText(text_data);
             char_pointer = 10;
             display.setCaretPosition(char_pointer);
-
         }catch(Exception e){
             // Showing the error message
             JOptionPane.showMessageDialog(null, e, "Error (Start)", JOptionPane.ERROR_MESSAGE);
@@ -275,9 +290,7 @@ class JTyping{
         try{
             InputStream data_path = getClass().getResourceAsStream(text_path);  // To get the data inside JAR
             assert data_path != null;
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(data_path, StandardCharsets.UTF_8)   // To read utf-8 text
-            );
+            BufferedReader br = new BufferedReader(new InputStreamReader(data_path, StandardCharsets.UTF_8));   // To read utf-8 text
 
             // Reading
             int c;
@@ -293,7 +306,6 @@ class JTyping{
         }
 
         return data.toString();
-
     }
 
     private String readOperation(String url){
@@ -301,6 +313,7 @@ class JTyping{
         try{
             FileInputStream read = new FileInputStream(url);
 
+            // Reading
             int ch;
             while((ch = read.read()) != -1){
                 data.append((char)ch);
@@ -313,14 +326,13 @@ class JTyping{
         }
 
         return data.toString();
-
     }
 
     private void writeOperation(String url, String data){
         try{
             FileOutputStream write = new FileOutputStream(url);
             for(int i=0; i < data.length(); i++){
-                write.write(data.charAt(i));
+                write.write(data.charAt(i));  // Writing data
             }
             write.close();
         }catch(Exception e){
@@ -332,17 +344,34 @@ class JTyping{
     private void keyOperations(KeyEvent e){
         try{
             int code = e.getKeyCode();
-            // If typing is stopped then we can use F5 to start typing with selected text
-            if(code == KeyEvent.VK_F6){
+
+            if(code == KeyEvent.VK_F6){  // If F6 is pressed we can toggle sound on/off
+                System.out.println();
                 sound_var = !sound_var;
+                if(sound_var){
+                    time_display_lbl.setText("  Sound: On  ");
+                }else{
+                    time_display_lbl.setText("  Sound: Off  ");
+                }
+            }else if(code == KeyEvent.VK_F7){  // If F7 is pressed font size decreases
+                fontSettings("decrease");
+                time_display_lbl.setText("  Font Size: " + display_font_size + "  ");
+            }else if(code == KeyEvent.VK_F8){  // If F8 is pressed font size increases
+                fontSettings("increase");
+                time_display_lbl.setText("  Font Size: " + display_font_size + "  ");
+            }else if(code == KeyEvent.VK_F11){  // If F11 is pressed we can change font style
+                fontSettings("style");
+                time_display_lbl.setText("  Font Style: " + display.getFont().getFontName() + "  ");
             }
 
+            // If typing is stopped then we can use F5 to start typing with selected text
             if(stop_typing){
                 if(code == KeyEvent.VK_F5){
                     textOrTimeSelected();
                 }
-                return;
+                return;   // If stop_typing is true then no below statements should be executed but above statements can
             }
+
 
             if(code == KeyEvent.VK_ESCAPE){   // If ESC key is pressed then stop typing and display analysis
                 typing_started = false;
@@ -359,12 +388,16 @@ class JTyping{
             // Key to be considered if the size doesn't exceed, and it is present in all_chars array
             if(char_pointer <= text_data.length()-1 && all_chars.indexOf(ch) != -1){
 
-                // Updating the display to show good amount of characters on display when \n is encountered in text_data
-                if(text_data.charAt(char_pointer) == '\n'){
+                // Updating the display to show good amount of characters on display when last letter of line is encountered in display
+                int new_line_no = getDisplayLineNumber(char_pointer + 1);  // Getting the line number changes that's 1 is added
+                if(text_data.charAt(char_pointer) == '\n' || line_no != new_line_no){
+                    display_scroll_pane.getViewport().scrollRectToVisible(display.getVisibleRect());  // We are using same method many times to get the display the present line at top
                     display_scroll_pane.getViewport().scrollRectToVisible(display.getVisibleRect());
                     display_scroll_pane.getViewport().scrollRectToVisible(display.getVisibleRect());
                     display_scroll_pane.getViewport().scrollRectToVisible(display.getVisibleRect());
                     display_scroll_pane.getViewport().scrollRectToVisible(display.getVisibleRect());
+                    display_scroll_pane.getViewport().scrollRectToVisible(display.getVisibleRect());
+                    line_no = new_line_no;  // Setting the line_no to new one
                 }
 
                 // Timer is started only if is_ready is true
@@ -374,13 +407,14 @@ class JTyping{
                     timer.schedule(new Count(), 0, 1000);  // Starting the timer
                     is_ready = false;
                 }
+
                 if(ch == text_data.charAt(char_pointer)){
                     display.getHighlighter().addHighlight(char_pointer, char_pointer+1, greenHighlighter);
-                    char_correct++;
+                    correct_chars++;
                 }else{
                     display.getHighlighter().addHighlight(char_pointer, char_pointer+1, redHighlighter);
                     playSounds("sounds/error.wav");  // Playing a sound when a character typed incorrectly
-                    char_error++;
+                    error_chars++;
                 }
 
                 // When we reach end of the text then we need to stop the execution and show analysis
@@ -391,7 +425,6 @@ class JTyping{
                 char_pointer++;
                 display.setCaretPosition(char_pointer);
 
-
             }
         }catch(Exception ex){
             // Showing the error message
@@ -401,12 +434,15 @@ class JTyping{
     }
 
     private void textOrTimeSelected(){
+        // This will remove unwanted before highlights, and it is important to not get inserted text highlighted
+        display.getHighlighter().removeAllHighlights();
+
         try{
             // Setting the variables to its default values
             typing_started = false;
             is_ready = false;
             stop_typing = false;
-            char_pointer = char_correct = char_error = time_in_seconds = time_counter = 0;
+            char_pointer = correct_chars = error_chars = time_in_seconds = time_counter = line_no = 0;
 
             // Setting the selected time
             String time_selected = time_names[time_box.getSelectedIndex()];
@@ -443,8 +479,6 @@ class JTyping{
 
             time_display_lbl.setText("  " + time_in_seconds + " Seconds ");
 
-            StringBuilder data = new StringBuilder();
-
             // Setting the selected text
             String text_name_selected = text_names[text_name_box.getSelectedIndex()];
 
@@ -479,78 +513,106 @@ class JTyping{
         // Stop typing until you press a key indicating with this boolean variable
         stop_typing = true;
 
-        double time_taken = (time_in_seconds-time_counter);  // Total Time - Time Spent In Typing
-
-        // If you type very less time or if you type more errors than correct characters then analysis will not be shown
-        if((time_taken < 40) || ((char_correct) <= char_error)){
-            JOptionPane.showMessageDialog(null, "Try to type the text for atleast 40 seconds.\n" +
-                            "And try to type more characters correctly than wrong.\nTry to type accurately and eventually your typing " +
-                            "speed increases.\n\nNow reloading the text.\n\n" +
-                            "Best WPM: " + best_wpm + " Words Per Minute\nYou Spent " + program_used_time + " Minutes Of Time Using JTyping Since " + date_time_stored,
-                    "Analysis Warning", JOptionPane.WARNING_MESSAGE);
-            textOrTimeSelected();  // Loading the same text
-            return;
-        }
-
         // WPM Information: https://www.speedtypingonline.com/typing-equations
-        double chars_typed = char_pointer;
-        double chars_typed_by_5 = chars_typed/5.0;
-        double errors = char_error;
-        double time_taken_in_minutes = time_taken/60.0;  // Divide by 60 to convert seconds to minutes
+        double time_taken = (time_in_seconds - time_counter);  // Duration = Time Selected - Time Spent In Typing
+        double time_taken_in_minutes = time_taken / 60.0;  // Divide by 60 to convert seconds to minutes
+        double chars_typed = (correct_chars + error_chars);
+        double chars_typed_divided_by_5 = chars_typed / 5.0;
+        double errors = error_chars;
 
         // Gross WPM(Words Per Minute) = (No. of chars typed/5)/Time taken (in minutes)
-        double gross_wpm = (chars_typed_by_5)/(time_taken_in_minutes);
+        double gross_wpm = (chars_typed_divided_by_5) / (time_taken_in_minutes);
         // Net WPM(Words Per Minute) = ((No. of chars typed/5)-Errors)/Time taken (in minutes) (OR) Gross WPM - (Errors/Time taken (in minutes))
-        double net_wpm = (chars_typed_by_5 - errors)/(time_taken_in_minutes);
+        double net_wpm = (chars_typed_divided_by_5 - errors) / (time_taken_in_minutes);
         // Accuracy = (Correct characters/All Characters)*100
-        double accuracy = (char_correct/chars_typed)*100.0;
+        double accuracy = ((double)correct_chars / chars_typed) * 100.0;
         // Gross strokes = All Characters Typed
         int gross_strokes = (int)chars_typed;
         // Error hits = no of errors typed
-        int error_hits = char_error;
+        int error_hits = error_chars;
         // Net strokes = gross - error hits
         int net_strokes = gross_strokes - error_hits;
+
+        // Adding the new typed time to old typed time
+        program_used_time += time_taken_in_minutes;
+        program_used_time = Math.round(program_used_time * 100.0) / 100.0;  // Rounding the time to two digits
 
         // Best WPM and program used time calculation and storing
         if(net_wpm > best_wpm){
             best_wpm = Math.abs((int)net_wpm);
         }
-        program_used_time += Math.round(Math.abs(time_taken_in_minutes)*100.0)/100.0;  // Rounding the time to two digits
-        writeOperation(data_store_file_name, best_wpm + "," + program_used_time + "," + date_time_stored);  // Writing WPM And Program Use Time
+
+        // Writing data to store.data
+        writeOperation(data_store_file_name, win_w + "," + win_h + "," + display_font_style +"," + display_font_size + "," + best_wpm + "," + program_used_time + "," + time_box.getSelectedIndex() + "," + date_time_stored);
 
         // Displaying the analysis
-        String display_str = "Analysis:\n\n";
-        display_str += "Time taken:    \t" + time_taken + " Seconds of total " + time_in_seconds + " Seconds\n";
-        display_str += "Gross Speed:   \t" + (int)gross_wpm + " Words Per Minute (WPM)\n";
-        display_str += "*Net Speed:    \t" + (int)net_wpm + " Words Per Minute (WPM)\n";
-        display_str += "Accuracy:      \t" + (int)accuracy + "%\n";
-        display_str += "Gross Strokes: \t" + gross_strokes + "\n";
-        display_str += "Error Hits:    \t" + error_hits + "\n";
-        display_str += "*Net Strokes:  \t" + net_strokes + "\n\n";
-        display_str += "Your Best WPM:   " + best_wpm + " Words Per Minute\n";
-        display_str += "You Spent " + program_used_time + " Minutes Of Time Using JTyping Since " + date_time_stored + "\n\n";
-        display_str += "If You Want To Type The Same Text Again Press \"F5\" Key On Your Keyboard\n\n";
-        display_str += "Text You Typed:\n";
+        text_data = "Analysis:\n\n";
+        text_data += "Duration\t:    " + (int)time_taken + " Seconds Of Total " + time_in_seconds + " Seconds\n";
+        text_data += "Gross Speed\t:    " + (int)gross_wpm + " Words Per Minute (WPM)\n";
+        if(net_wpm < 0){
+            text_data += "*Net Speed\t:    Cannot Be Calculated [Try To Type For More Time With Less Mistakes]\n";
+        }else{
+            text_data += "*Net Speed\t:    " + (int)net_wpm + " Words Per Minute (WPM)      [Typing Level :  " + getTypingLevel((int)net_wpm) + "]\n";
+        }
+        text_data += "Error Hits\t:    " + error_hits + "\n";
+        text_data += "Accuracy\t:    " + (int)accuracy + " %\n";
+        text_data += "Gross Strokes\t:    " + gross_strokes + "\n";
+        text_data += "*Net Strokes\t:    " + net_strokes + "\n\n";
+        text_data += "Typing Speed Levels (In WPM):\n(0-25 = Slow)      (26-45 = Average)      (46-65 = Fluent)      (66-80 = Fast)      (81-∞ = Insane)\n\n";
+        text_data += "Your Best WPM : " + best_wpm + " Words Per Minute (" + getTypingLevel(best_wpm) + " Level)\n";
+        text_data += "You Spent " + program_used_time + " Minutes Of Time Using JTyping Since " + date_time_stored + "\n\n";
+        text_data += "If You Want To Type The Same Text Again Press \"F5\" Key On Your Keyboard\n\n";
+        text_data += "Text You Typed:\n";
 
+        // Dealing with highlights and showing the data on screen
         try{
             // Inorder to place the text in the start we need to remove the first highlighted character otherwise that
             // will highlight will be given to inserted text to avoid that we are removing that highlight and adding
             // it after adding
             Highlighter.Highlight[] highlights = display.getHighlighter().getHighlights();
             Highlighter.Highlight highlight_deleting = highlights[0];
-            display.getHighlighter().removeHighlight(highlights[0]);  // Removing the highlight of first character
-            display.insert(display_str, 0);
+            display.getHighlighter().removeHighlight(highlight_deleting);  // Removing the highlight of first character
+
+            display.insert(text_data, 0);
             char_pointer = 9;
             display.setCaretPosition(char_pointer);  // Setting the cursor position to start
             // Highlighting the removed character
-            if(highlight_deleting.getPainter().equals(greenHighlighter)) {
-                display.getHighlighter().addHighlight(display_str.length(), display_str.length()+1, greenHighlighter);
+            if(highlight_deleting.getPainter().equals(greenHighlighter)){
+                display.getHighlighter().addHighlight(text_data.length(), text_data.length()+1, greenHighlighter);
             }else{
-                display.getHighlighter().addHighlight(display_str.length(), display_str.length()+1, redHighlighter);
+                display.getHighlighter().addHighlight(text_data.length(), text_data.length()+1, redHighlighter);
             }
         }catch(Exception e){
             // Showing the error message
             JOptionPane.showMessageDialog(null, e, "Error (Display Analysis)", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private String getTypingLevel(int speed){
+        if(speed >= 0 && speed <=25){
+            return "Slow";
+        }else if(speed >= 26 && speed <= 45){
+            return "Average";
+        }else if(speed >= 46 && speed <= 65){
+            return "Fluent";
+        }else if(speed >= 66 && speed <= 80){
+            return "Fast";
+        }else{
+            return "Insane";
+        }
+    }
+
+    private void fontSettings(String operation){
+        if(operation.equals("increase")  && display_font_size <= 115){
+            display_font_size++;
+            display.setFont(new Font(display_font_style, Font.PLAIN, display_font_size));
+        }else if(operation.equals("decrease") && display_font_size >= 21){
+            display_font_size--;
+            display.setFont(new Font(display_font_style, Font.PLAIN, display_font_size));
+        }else if(operation.equals("style")){
+            display_font_style = JOptionPane.showInputDialog(null, "Enter A Valid Style. (Default Style: Times New Roman)", "JTyping (Font Settings)", JOptionPane.PLAIN_MESSAGE);
+            display.setFont(new Font(display_font_style, Font.PLAIN, display_font_size));
+            display_font_style = display.getFont().getFontName();
         }
     }
 
@@ -590,6 +652,24 @@ class JTyping{
         return path;
     }
 
+    private int getDisplayLineNumber(int caretPos){
+        if(caretPos > text_data.length()){  // If caretPos > text length then return 0
+            return 0;
+        }
+
+        int rowNum = (caretPos == 0) ? 1 : 0;
+        try{
+            for(int offset = caretPos; offset > 0; ){
+                offset = Utilities.getRowStart(display, offset) - 1;
+                rowNum++;
+            }
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, e, "Error (Display Line Number)", JOptionPane.ERROR_MESSAGE);
+        }
+
+        return rowNum;
+    }
+
     private void playSounds(String url){
         // Plays the sound
         if(sound_var){
@@ -607,8 +687,12 @@ class JTyping{
     }
 
     private void exit(){
+        // Storing the window size
+        win_w = window.getWidth();
+        win_h = window.getHeight();
+
         // Stores data before closing
-        writeOperation(data_store_file_name, best_wpm + "," + program_used_time + "," + date_time_stored);  // Writing WPM And Program Use Time
+        writeOperation(data_store_file_name, win_w + "," + win_h + "," + display_font_style +"," + display_font_size + "," + best_wpm + "," + program_used_time + "," + time_box.getSelectedIndex() + "," + date_time_stored);  // Writing WPM And Program Use Time
         if(timer != null)
             timer.cancel();  // Stopping the timer
         window.dispose();  // Closing the window
