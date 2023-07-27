@@ -65,7 +65,7 @@ class JTyping{
 
     // Variables
     private final String all_chars = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n`~!@#$%^&*()-_=+\\|{}[]:;\"',<>./?'";
-    private final String[] text_names = {"Astronauts", "Babbage", "Baseball", "Cast", "Credits", "DNA", "Fables", "Franklin", "Girl", "Hill", "Hubble", "Insects", "Jane", "Lincoln", "Netiquette", "Pangrams", "Photo", "Rabbits", "Strebel", "Yosemite", "ZNumbers1", "ZNumbers2", "Custom Text"};
+    private final String[] text_names = {"Random", "Astronauts", "Babbage", "Baseball", "Cast", "Credits", "DNA", "Fables", "Franklin", "Girl", "Hill", "Hubble", "Insects", "Jane", "Lincoln", "Netiquette", "Pangrams", "Photo", "Rabbits", "Strebel", "Yosemite", "ZNumbers1", "ZNumbers2", "Custom Text"};
     private final String[] time_names = {"46 Seconds", "1 Minute", "2 Minutes", "3 Minutes", "5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "46 Minutes", "1 Hours", "2 Hours", "3 Hours", "Custom Time"};
     private int char_pointer = 0, correct_chars = 0, error_chars = 0, best_wpm = 0, time_in_seconds = 0, time_counter = 0, display_font_size = 25, time_box_selected_index = 0, line_no = 0, win_w = 1041, win_h = 670;
     private double program_used_time = 0;
@@ -195,8 +195,9 @@ class JTyping{
         time_display_lbl.setFont(new Font("Times New Roman", Font.PLAIN, 20));
         panel.add(time_display_lbl, BorderLayout.EAST);
 
-        // Reading and storing the dictionary.data document
-        start();
+        // Reading and storing the dictionary.data document and presenting start screen
+        initVariables();
+        startScreen();
 
         // Changing the functionality of close button
         window.addWindowListener(new WindowAdapter(){
@@ -241,7 +242,7 @@ class JTyping{
     // Methods
 
 
-    private void start(){
+    private void initVariables(){
         try{
             // store.data handling
             String data;
@@ -270,6 +271,7 @@ class JTyping{
             sound_var = Boolean.parseBoolean(arr[8]);
             is_maximized = Boolean.parseBoolean(arr[9]);
 
+            // If the screen is set to maximized then maximize when the window opens
             if(is_maximized){
                 window.setExtendedState(JFrame.MAXIMIZED_BOTH);
             }
@@ -287,7 +289,16 @@ class JTyping{
 
             // Setting the time to time_box to selected index
             time_box.setSelectedIndex(time_box_selected_index);
+        }catch(Exception e){
+            // Showing the error message
+            JOptionPane.showMessageDialog(null, e, "Error (Init Variables)", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
+
+    private void startScreen(){
+        // Help Or Start Screen
+        try{
             // Setting the variables to their default values
             typing_started = false;
             stop_typing = true;
@@ -322,6 +333,7 @@ class JTyping{
 
 
     private String readFromJAR(String text_path){
+        // Reading from the JAR
         StringBuilder data = new StringBuilder();
 
         try{
@@ -347,6 +359,7 @@ class JTyping{
 
 
     private String readOperation(String url){
+        // Reading from the disk
         StringBuilder data = new StringBuilder();
         try{
             FileInputStream read = new FileInputStream(url);
@@ -368,6 +381,7 @@ class JTyping{
 
 
     private void writeOperation(String url, String data, boolean append){
+        // Write to the disk
         try{
             FileOutputStream write = new FileOutputStream(url, append);
             for(int i=0; i < data.length(); i++){
@@ -382,11 +396,15 @@ class JTyping{
 
 
     private void keyOperations(KeyEvent e){
+        // Invoked when you press any key on your keyboard
         try{
             int code = e.getKeyCode();
 
-            if(code == KeyEvent.VK_F6){  // If F6 is pressed we can toggle sound on/off
-                System.out.println();
+            if(code == KeyEvent.VK_F1){  // Start screen if presented, if F1 key is pressed
+                if(stop_typing){  // If typing is halted then start screen will be displayed
+                    startScreen();
+                }
+            }else if(code == KeyEvent.VK_F6){  // If F6 is pressed we can toggle sound on/off
                 sound_var = !sound_var;
                 if(sound_var){
                     time_display_lbl.setText("  Sound: On  ");
@@ -507,6 +525,8 @@ class JTyping{
 
 
     private void textOrTimeSelected(){
+        // Invoked when text or time picklist item is selected
+
         // This will remove unwanted before highlights, and it is important to not get inserted text highlighted
         display.getHighlighter().removeAllHighlights();
 
@@ -564,6 +584,8 @@ class JTyping{
                 }else{
                     text_data = readOperation(text_path);
                 }
+            }else if(text_name_selected.equals("Random")){
+                text_data = randomTextLoader(text_path);
             }else{
                 text_data = readFromJAR(text_path);
             }
@@ -585,6 +607,8 @@ class JTyping{
 
 
     private void displayAnalysis(){
+        // Displays the typed text and its analysis
+
         // Stop typing until you press a key indicating with this boolean variable
         stop_typing = true;
 
@@ -596,9 +620,9 @@ class JTyping{
         double errors = error_chars;
 
         // Gross WPM(Words Per Minute) = (No. of chars typed/5)/Time taken (in minutes)
-        double gross_wpm = (chars_typed_divided_by_5) / (time_taken_in_minutes);
+        double gross_wpm = Math.round((chars_typed_divided_by_5) / (time_taken_in_minutes));
         // Net WPM(Words Per Minute) = ((No. of chars typed/5)-Errors)/Time taken (in minutes) (OR) Gross WPM - (Errors/Time taken (in minutes))
-        double net_wpm = (chars_typed_divided_by_5 - errors) / (time_taken_in_minutes);
+        double net_wpm = Math.round((chars_typed_divided_by_5 - errors) / (time_taken_in_minutes));
         // Accuracy = (Correct characters/All Characters)*100
         double accuracy = ((double)correct_chars / chars_typed) * 100.0;
         // Gross strokes = All Characters Typed
@@ -640,7 +664,7 @@ class JTyping{
         text_data += "Gross Strokes\t:    " + gross_strokes + "\n";
         text_data += "*Net Strokes\t:    " + net_strokes + "\n\n";
         text_data += "Typing Speed Levels (In WPM):   [Press \"F12\" Key To View Typing History]\n";
-        text_data += "(0-25 = Slow)      (26-45 = Average)      (46-65 = Fluent)      (66-80 = Fast)      (81-∞ = Insane)\n\n";
+        text_data += "\n\n";
         text_data += "Your Best WPM : " + best_wpm + " Words Per Minute (" + getTypingLevel(best_wpm) + " Level)\n";
         text_data += "You Spent " + program_used_time + " Minutes Of Time Using JTyping Since " + date_time_stored + "\n\n";
         text_data += "If You Want To Type The Same Text Again Press \"F5\" Key On Your Keyboard\n\n";
@@ -674,7 +698,30 @@ class JTyping{
     }
 
 
+    private void updateRealtimeAnalysis(int state){
+        // Updates the window title with realtime analysis
+        if(state == 0){  // Off state
+            window.setTitle("JTyping");
+        }else{  // On state
+            double time_taken = Math.abs(time_in_seconds - time_counter);  // Duration = Time Selected - Time Spent In Typing
+            double time_taken_in_minutes = time_taken / 60.0;  // Divide by 60 to convert seconds to minutes
+            double chars_typed = (correct_chars + error_chars);
+            double chars_typed_divided_by_5 = chars_typed / 5.0;
+
+            // Gross WPM(Words Per Minute) = (No. of chars typed/5)/Time taken (in minutes)
+            int gross_wpm = (int)Math.round((chars_typed_divided_by_5) / (time_taken_in_minutes));
+            // Accuracy = (Correct characters/All Characters)*100
+            int accuracy = (int)(((double)correct_chars / chars_typed) * 100.0);
+
+            // Updating the window title
+            window.setTitle("JTyping | " + "WPM: " + gross_wpm + " | Accuracy: " + accuracy + "%");
+        }
+    }
+
+
     private String getTypingLevel(int speed){
+        // Returns the typing level
+        // (0-25 = Slow)      (26-45 = Average)      (46-65 = Fluent)      (66-80 = Fast)      (81-∞ = Insane)
         if(speed >= 0 && speed <= 25){
             return "Slow";
         }else if(speed >= 26 && speed <= 45){
@@ -690,6 +737,7 @@ class JTyping{
 
 
     private void fontSettings(String operation){
+        // Text settings
         if(operation.equals("increase")  && display_font_size <= 115){  // Increasing font size
             display_font_size++;
             display.setFont(new Font(display_font_style, Font.PLAIN, display_font_size));
@@ -704,7 +752,25 @@ class JTyping{
     }
 
 
+    private String randomTextLoader(String path){
+        // Select a random paragraph from random.exm and returns
+        String data = readFromJAR(path);
+
+        data = data.replace("\r", "");  // Replacing the carriage return to enter and storing
+        data = data.replace("  ", " ");  // Replacing two space with single space
+        data = data.replace(" \n", "\n");  // Replacing space and enter with just enter
+        data = data.trim();  // Removing unwanted spaces and newline at start and end
+
+        // Splitting the text into paragraphs and selecting a random paragraph
+        String[] str_arr = data.split("\n\n");
+        int rand_num = new Random().nextInt(str_arr.length);
+
+        return str_arr[rand_num];
+    }
+
+
     private int customTime(){
+        // Enables user to select custom time
         int time = 60;  // If error occurs then we set timer to 60 seconds
 
         if(window.isVisible()){  // Show custom time box only if window is visible
@@ -722,6 +788,7 @@ class JTyping{
 
 
     private String customText(){
+        // Enables user to select custom text
         String path = "texts/pangrams.exm";  // If error occurs then we set text to pangrams
 
         try{
@@ -745,6 +812,7 @@ class JTyping{
 
 
     private int getDisplayLineNumber(int caretPos){
+        // Returns the display line number
         if(caretPos > text_data.length()){  // If caretPos > text length then return 0
             return 0;
         }
@@ -831,6 +899,7 @@ class JTyping{
             try{
                 time_counter--;
                 time_display_lbl.setText("  " + time_counter + " Seconds ");
+                updateRealtimeAnalysis(1);  // Starting the realtime analysis
                 if(time_counter == 0 || !typing_started){
                     typing_started = false;
                     timer.cancel();  // Stops the timer
@@ -840,6 +909,7 @@ class JTyping{
                         time_counter = -1;  // Setting the counter to -1 which indicates timer is not running
                     }
                     timer.purge();  // Clears timer scheduled list
+                    updateRealtimeAnalysis(0);  // Halting the realtime analysis
                 }
             }catch(Exception e){
                 // Showing the error message
