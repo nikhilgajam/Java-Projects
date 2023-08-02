@@ -67,7 +67,7 @@ class JTyping{
     private final String all_chars = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n`~!@#$%^&*()-_=+\\|{}[]:;\"',<>./?'";
     private final String[] text_names = {"Random", "Astronauts", "Babbage", "Baseball", "Cast", "Credits", "DNA", "Fables", "Franklin", "Girl", "Hill", "Hubble", "Insects", "Jane", "Lincoln", "Netiquette", "Pangrams", "Photo", "Rabbits", "Strebel", "Yosemite", "ZNumbers1", "ZNumbers2", "Custom Text"};
     private final String[] time_names = {"46 Seconds", "1 Minute", "2 Minutes", "3 Minutes", "5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "46 Minutes", "1 Hours", "2 Hours", "3 Hours", "Custom Time"};
-    private int char_pointer = 0, correct_chars = 0, error_chars = 0, best_wpm = 0, time_in_seconds = 0, time_counter = 0, display_font_size = 25, time_box_selected_index = 0, line_no = 0, win_w = 1041, win_h = 670;
+    private int char_pointer = 0, correct_chars = 0, error_chars = 0, best_wpm = 0, time_in_seconds = 0, time_counter = 0, display_font_size = 25, time_box_selected_index = 0, correction_mode = 0, line_no = 0, win_w = 1041, win_h = 670;
     private double program_used_time = 0;
     private String text_data = "", data_store_file_name = "store.data", date_time_stored = "", display_font_style = "Times New Roman";
     private boolean typing_started = false, stop_typing = true, sound_var = true, is_ready = false, is_maximized = false;
@@ -309,11 +309,11 @@ class JTyping{
                     "JTyping Is A Typing Improvement And Analysis Program.\n" +
                     "You Can Toggle The Sound On/Off By Pressing The \"F6\" Key.\n" +
                     "You Can Press \"ESC\" Key To Stop The Timer And Show Analysis.\n" +
-                    "You Can See Your Text Typing History By Pressing The \"F12\" Key.\n" +
                     "You Can Select Any Time And Text Options Provided In The Picklists Given Below.\n" +
                     "You Can Select Custom Time And Text By Choosing Custom Option Provided In The Picklist.\n" +
+                    "You Can See Your Text Typing History By Pressing The \"F12\" Key. Correction Mode \"F2\" Key.\n" +
                     "You Can Decrease/Increase Text Size Using \"F7\"/\"F8\" Keys And Change Style Using \"F11\" Key.\n\n" +
-                    "Press \"F5\" To Start Typing The Randomly Selected Text.\n\n" +
+                    "Press \"F5\" To Start Typing.\n\n" +
                     "Your Best WPM : " + best_wpm + " Words Per Minute (" + getTypingLevel(best_wpm) + " Level)\n" +
                     "You Spent " + program_used_time + " Minutes Of Time Using JTyping Since " + date_time_stored + "\n\n" +
                     "JTyping\nVersion 1.0\nDeveloped By Nikhil";
@@ -404,6 +404,19 @@ class JTyping{
                 if(stop_typing){  // If typing is halted then start screen will be displayed
                     startScreen();
                 }
+            }else if(code == KeyEvent.VK_F2){
+                correction_mode++;
+                if(correction_mode > 2){
+                    correction_mode = 0;
+                }
+
+                if(correction_mode == 0){
+                    time_display_lbl.setText("  Correction: Word  ");
+                }else if(correction_mode == 1){
+                    time_display_lbl.setText("  Correction: All  ");
+                }else if(correction_mode == 2){
+                    time_display_lbl.setText("  Correction: Off  ");
+                }
             }else if(code == KeyEvent.VK_F6){  // If F6 is pressed we can toggle sound on/off
                 sound_var = !sound_var;
                 if(sound_var){
@@ -434,7 +447,9 @@ class JTyping{
 
             // When backspace key is pressed
             if(code == KeyEvent.VK_BACK_SPACE){
-                if(char_pointer-1 >= 0 && (text_data.charAt(char_pointer-1) != ' ' && text_data.charAt(char_pointer - 1) != '\n')){
+                boolean flag = false;  // This variable is checked to make the error sound
+                if(correction_mode == 0 && char_pointer-1 >= 0 && (text_data.charAt(char_pointer-1) != ' ' && text_data.charAt(char_pointer - 1) != '\n')){  // Word correction mode which will allow you to correct the last word
+                    flag = true;
                     Highlighter.Highlight[] highlights = display.getHighlighter().getHighlights();
                     if(highlights.length > 0){  // If some letter got highlighted then only below statements should be executed
                         Highlighter.Highlight highlight_deleting = highlights[highlights.length - 1];
@@ -451,7 +466,28 @@ class JTyping{
                         char_pointer--;
                         display.setCaretPosition(char_pointer);  // Setting the cursor position to char_pointer location
                     }
-                }else{
+                }else if(correction_mode == 1 && char_pointer-1 >= 0){  // All correction mode which will allow you to correct till the start of the text
+                    flag = true;
+                    Highlighter.Highlight[] highlights = display.getHighlighter().getHighlights();
+                    Highlighter.Highlight highlight_deleting = highlights[highlights.length - 1];
+                    display.getHighlighter().removeHighlight(highlight_deleting);  // Removing the highlight of first character
+
+                    // Decrement the number by one depending on the before highlighted color
+                    if(highlight_deleting.getPainter().equals(greenHighlighter)){
+                        correct_chars--;
+                    }else{
+                        error_chars--;
+                    }
+
+                    // Decrementing the char_pointer
+                    char_pointer--;
+                    display.setCaretPosition(char_pointer);  // Setting the cursor position to char_pointer location
+                }else if(correction_mode == 2){  // No correction mode which will not allow you to correct the text
+                    flag = true;
+                    playSounds("sounds/error2.wav");  // When we press backspace if there is a space or \n then play error sound
+                }
+
+                if(!flag){
                     playSounds("sounds/error2.wav");  // When we press backspace if there is a space or \n then play error sound
                 }
             }
@@ -623,6 +659,8 @@ class JTyping{
         double gross_wpm = Math.round((chars_typed_divided_by_5) / (time_taken_in_minutes));
         // Net WPM(Words Per Minute) = ((No. of chars typed/5)-Errors)/Time taken (in minutes) (OR) Gross WPM - (Errors/Time taken (in minutes))
         double net_wpm = Math.round((chars_typed_divided_by_5 - errors) / (time_taken_in_minutes));
+        // CPM (Characters Per Minute) = WPM * 5
+        int cpm = (int)Math.round(net_wpm * 5.0);
         // Accuracy = (Correct characters/All Characters)*100
         double accuracy = ((double)correct_chars / chars_typed) * 100.0;
         // Gross strokes = All Characters Typed
@@ -656,8 +694,10 @@ class JTyping{
         text_data += "Gross Speed\t:    " + (int)gross_wpm + " Words Per Minute (WPM)\n";
         if(net_wpm < 0){
             text_data += "*Net Speed\t:    Cannot Be Calculated [Try To Type For More Time With Less Mistakes]\n";
+            text_data += "CPM\t:    Cannot Be Calculated\n";
         }else{
             text_data += "*Net Speed\t:    " + (int)net_wpm + " Words Per Minute (WPM)      [Typing Level :  " + getTypingLevel((int)net_wpm) + "]\n";
+            text_data += "CPM\t:    " + cpm + " Characters Per Minute (CPM)\n";
         }
         text_data += "Error Hits\t:    " + error_hits + "\n";
         text_data += "Accuracy\t:    " + (int)accuracy + " %\n";
@@ -709,12 +749,15 @@ class JTyping{
             double chars_typed_divided_by_5 = chars_typed / 5.0;
 
             // Gross WPM(Words Per Minute) = (No. of chars typed/5)/Time taken (in minutes)
-            int gross_wpm = (int)Math.round((chars_typed_divided_by_5) / (time_taken_in_minutes));
+            double gross_wpm = ((chars_typed_divided_by_5) / (time_taken_in_minutes));
+            // CPM (Characters Per Minute) = WPM * 5
+            int cpm = (int)Math.round(gross_wpm * 5.0);
             // Accuracy = (Correct characters/All Characters)*100
             int accuracy = (int)(((double)correct_chars / chars_typed) * 100.0);
+            int wpm = Math.abs((int)Math.round(gross_wpm));
 
             // Updating the window title
-            window.setTitle("JTyping | " + "WPM: " + gross_wpm + " | Accuracy: " + accuracy + "%");
+            window.setTitle("JTyping | " + "WPM: " + wpm + " | CPM: " + cpm + " | Accuracy: " + accuracy + "%");
         }
     }
 
@@ -876,16 +919,23 @@ class JTyping{
         if(!is_maximized){
             win_w = window.getWidth();
             win_h = window.getHeight();
+
+            // If window is resized to very small size then setting the values to default
+            if(win_w < 1041 || win_h < 670){
+                win_w = 1041;
+                win_h = 670;
+            }
         }
 
         // Stores data before closing
         writeOperation(data_store_file_name, win_w + "," + win_h + "," + display_font_style +"," + display_font_size + "," + best_wpm + "," + program_used_time + "," + time_box.getSelectedIndex() + "," + date_time_stored + "," + sound_var + "," + is_maximized, false);  // Writing WPM And Program Use Time
+
         if(timer != null){
             timer.cancel();  // Stopping the timer
             timer.purge();  // Clears the scheduled list
         }
         window.dispose();  // Closing the window
-        System.exit(0);  // Closing all running threads and statements
+        System.exit(0);  // Closing all running threads and processes
     }
 
 
@@ -913,7 +963,7 @@ class JTyping{
                 }
             }catch(Exception e){
                 // Showing the error message
-                JOptionPane.showMessageDialog(null, e, "Error (Thread)", JOptionPane.ERROR_MESSAGE);;
+                JOptionPane.showMessageDialog(null, e, "Error (Thread)", JOptionPane.ERROR_MESSAGE);
             }
         }
 
