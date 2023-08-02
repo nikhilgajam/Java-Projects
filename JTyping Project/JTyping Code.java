@@ -913,7 +913,7 @@ class JTyping{
                 }
             }catch(Exception e){
                 // Showing the error message
-                JOptionPane.showMessageDialog(null, e, "Error (Thread)", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, e, "Error (Thread)", JOptionPane.ERROR_MESSAGE);;
             }
         }
 
