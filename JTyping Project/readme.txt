@@ -21,6 +21,8 @@ F8  = Key is used to increase the font size till 115.
 F11 = Key is used to change font style.
 F12 = Key is used to display the text analysis history.
 
+
+
        _ _______          _             
       | |__   __|        (_)            
       | |  | |_   _ _ __  _ _ __   __ _ 
@@ -29,6 +31,9 @@ F12 = Key is used to display the text analysis history.
   \____/   |_|\__, | .__/|_|_| |_|\__, |
                __/ | |             __/ |
               |___/|_|            |___/ 
+
+
+
 
 
 Place your finger on the home row and try to type without seeing the keyboard to learn touch typing quickly.
