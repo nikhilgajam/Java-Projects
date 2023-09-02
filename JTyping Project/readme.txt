@@ -16,8 +16,8 @@ Esc = Key is used to halt the current typing text and show the analysis.
 F1  = Key is used to show the start screen if you are not typing.
 F2  = Key is used to toggle between the correction modes.
 F6  = Key is used to toggle sound modes on/off.
-F7  = Key is used to decrease the font size till 16
-F8  = Key is used to increase the font size till 115
+F7  = Key is used to decrease the font size till 16.
+F8  = Key is used to increase the font size till 115.
 F11 = Key is used to change font style.
 F12 = Key is used to display the text analysis history.
 
