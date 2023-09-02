@@ -400,11 +400,11 @@ class JTyping{
         try{
             int code = e.getKeyCode();
 
-            if(code == KeyEvent.VK_F1){  // Start screen if presented, if F1 key is pressed
+            if(code == KeyEvent.VK_F1){  // Start screen is presented, if F1 key is pressed
                 if(stop_typing){  // If typing is halted then start screen will be displayed
                     startScreen();
                 }
-            }else if(code == KeyEvent.VK_F2){
+            }else if(code == KeyEvent.VK_F2){  // Press F2 key to toggle between correction modes
                 correction_mode++;
                 if(correction_mode > 2){
                     correction_mode = 0;
@@ -703,11 +703,11 @@ class JTyping{
         text_data += "Accuracy\t:    " + (int)accuracy + " %\n";
         text_data += "Gross Strokes\t:    " + gross_strokes + "\n";
         text_data += "*Net Strokes\t:    " + net_strokes + "\n\n";
+        text_data += "If You Want To Type The Same Selected Text Again Press \"F5\" Key On Your Keyboard\n\n";
         text_data += "Typing Speed Levels (In WPM):   [Press \"F12\" Key To View Typing History]\n";
-        text_data += "\n\n";
+        text_data += "(0-25 = Slow)      (26-45 = Average)      (46-65 = Fluent)      (66-80 = Fast)      (81-∞ = Insane)\n\n";
         text_data += "Your Best WPM : " + best_wpm + " Words Per Minute (" + getTypingLevel(best_wpm) + " Level)\n";
         text_data += "You Spent " + program_used_time + " Minutes Of Time Using JTyping Since " + date_time_stored + "\n\n";
-        text_data += "If You Want To Type The Same Text Again Press \"F5\" Key On Your Keyboard\n\n";
         text_data += "Text You Typed:\n";
 
         // Dealing with highlights and showing the data on screen
@@ -754,7 +754,13 @@ class JTyping{
             int cpm = (int)Math.round(gross_wpm * 5.0);
             // Accuracy = (Correct characters/All Characters)*100
             int accuracy = (int)(((double)correct_chars / chars_typed) * 100.0);
-            int wpm = Math.abs((int)Math.round(gross_wpm));
+            int wpm = (int)Math.round(gross_wpm);
+
+            // If wpm value is minus then we treat it as 0 to display
+            if(wpm < 0){
+                wpm = 0;
+                cpm = 0;
+            }
 
             // Updating the window title
             window.setTitle("JTyping | " + "WPM: " + wpm + " | CPM: " + cpm + " | Accuracy: " + accuracy + "%");
