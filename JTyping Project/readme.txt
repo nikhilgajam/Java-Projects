@@ -30,5 +30,6 @@ F12 = Key is used to display the text analysis history.
                __/ | |             __/ |
               |___/|_|            |___/ 
 
+
 Place your finger on the home row and try to type without seeing the keyboard to learn touch typing quickly.
 Some images are also provided to know how to place your fingers and which finger should be used to press which key.
