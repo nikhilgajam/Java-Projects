@@ -100,28 +100,30 @@ class JInternetDownloader{
 		public void run(){
 
 			try{
+				// Initializing the progress bar
+				progress_bar.setValue(0);
 
 				// Establishing a connection
 				URL url = new URL(link);
 				HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 				connection.setRequestMethod("GET");
 				connection.connect();
-				// long length = connection.getContentLengthLong();
+				long length = connection.getContentLengthLong();
 
 				// Creating an object to the data
 				InputStream stream = connection.getInputStream();
 				FileOutputStream w = new FileOutputStream(pwd);   // Creates a new document in the location present in pwd
 
 				int ch;
-				int count = 0;
+				long count = 0;
 				// Reading the data from the connection through inputstream object
 				while((ch = stream.read()) != -1){
 					w.write(ch);    // Writes the data to document or file in pwd
 
-					if(count == 100)
-						count = 0;
+					// Calculates the value to display in progress bar as 100% ((downloaded_bits/total_size) * 100)
+					final int currentProgress = (int) ((((double)count) / ((double)length)) * 100);
+					progress_bar.setValue(currentProgress);   // Calculating the percentage to update progress
 
-					progress_bar.setValue(count);   // Calculating the percentage to update progress
 					count++;
 				}
 
@@ -140,6 +142,5 @@ class JInternetDownloader{
 		}
 
 	}
-
 
 }
