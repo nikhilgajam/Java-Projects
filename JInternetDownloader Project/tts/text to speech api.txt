@@ -1,0 +1,5 @@
+https://translate.google.com/translate_tts?ie=UTF-8&q=hello&tl=en&tk=995126.592330&client=t
+
+http://translate.google.com/translate_tts?tl=en&q=addressed&client=tw-ob
+
+https://translate.google.com/translate_tts?ie=UTF-8&tl=en-US&client=tw-ob&q=hello%20world
