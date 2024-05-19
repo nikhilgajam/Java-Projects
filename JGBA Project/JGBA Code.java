@@ -46,13 +46,6 @@ public class Jp {
 
 class JGBA {
 
-    private final JMenuItem how_to, open_settings, about_us;
-    private final TreeMap<String, String> all_games_list = new TreeMap<>();
-    private final TreeMap<String, String> downloaded_games_list = new TreeMap<>();
-    private final String all_games_location = "metadata/AllGamesData";
-    private final String downloaded_games_save_location = "Data/DownloadedGamesData";
-    private final String emulator_settings_path = "Emulator/EmulatorSettings.txt";
-    private final String game_load_path = "Data/DownloadedGames/";
     // Variables
     private final JFrame window;
     private final JTextField search_box;
@@ -67,11 +60,19 @@ class JGBA {
     private final JButton load_btn;
     private final JButton delete_btn;
     private final JList<String> listbox;
+    private final JMenuItem how_to, open_settings, about_us;
+    private final TreeMap<String, String> all_games_list = new TreeMap<>();
+    private final TreeMap<String, String> downloaded_games_list = new TreeMap<>();
     private final String save_location = "Data/DownloadedGames/";
+    private final String all_games_location = "metadata/AllGamesData";
+    private final String downloaded_games_save_location = "Data/DownloadedGamesData";
+    private final String emulator_settings_path = "Emulator/EmulatorSettings.txt";
+    private final String game_load_path = "Data/DownloadedGames/";
     private boolean displaying_all_games_list, is_downloading = false;
     private String emulator_path = "\"Emulator/mGBA-0.10.3-win32/mGBA.exe\"";
     private String just_downloaded_game_name = "";
 
+    // Constructor
     public JGBA() {
 
         // Window
@@ -116,7 +117,7 @@ class JGBA {
                     } else {
                         loadGame();
                     }
-                }else if(ch == 47){  // Using / key the search box will be selected
+                } else if (ch == 47) {  // Using / key the search box will be selected
                     // /(Slash) = 47
                     search_box.grabFocus();
                 }
@@ -132,6 +133,7 @@ class JGBA {
 
         // Progress Bar
         progress_bar = new JProgressBar();
+        progress_bar.setVisible(false);
         btn_panel.add(progress_bar);
 
         // Search Box
@@ -690,13 +692,14 @@ class JGBA {
                     emulator_path = new_emulator_path;
                     settings_window.dispose();
                 }
+
             }
         }
     }
 
 
     class DownloadGame extends Thread {
-        // This class gets the data from internet it takes some time that's why we are using thread
+        // This class reads the data from internet, it takes some time that's why we are using thread
 
         String link, save_location;
 
@@ -707,17 +710,23 @@ class JGBA {
         }
 
         public void run() {
+
             try {
                 // Initializing the progress bar
+                progress_bar.setVisible(true);
                 progress_bar.setValue(1);
                 is_downloading = true;
+
+                // Changing text and color of download button
                 download_btn.setText("Stop Downloading");
+                download_btn.setBackground(Color.decode("#b51616"));
 
                 // Establishing a connection
                 URL url = new URL(link);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.connect();
+
                 long length = connection.getContentLengthLong();
 
                 // Creating an object to the data
@@ -728,7 +737,7 @@ class JGBA {
                 long count = 0;
                 // Reading the data from the connection through inputstream object
                 while ((ch = in.read()) != -1 && is_downloading) {
-                    out.write(ch);    // Writes the data to document or file in pwd
+                    out.write(ch);    // Writing data to the file
 
                     // Calculates the value to display in progress bar as 100% ((downloaded_bits/total_size) * 100)
                     final int currentProgress = (int) ((((double) count) / ((double) length)) * 100);
@@ -737,9 +746,11 @@ class JGBA {
                     count++;
                 }
 
+                // Closing all the opened streams
                 out.close();
                 in.close();
 
+                // This if block is executed if game downloaded completely
                 if (is_downloading) {
                     // Setting the progress bar value to 100
                     progress_bar.setValue(100);
@@ -752,29 +763,37 @@ class JGBA {
                     gameLoader(false);
 
                 } else {
-
+                    // This else block is executed if download process is halted
                     if (new File(save_location).delete()) {
                         JOptionPane.showMessageDialog(null, "Game Download Stopped", "Download Stopped", JOptionPane.PLAIN_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(null, "Game Download Stopped But Partially Downloaded File Exists", "Download Stopped", JOptionPane.WARNING_MESSAGE);
                     }
 
-                    // Setting the progress bar value to 0
-                    progress_bar.setValue(0);
-                    download_btn.setText("Download");
-                    just_downloaded_game_name = "";
+                    progress_bar.setValue(0);  // Setting the progress bar value to 0
+                    just_downloaded_game_name = "";  // Setting empty value because download halted
                     is_downloading = false;
 
                 }
+
+            } catch (java.net.UnknownHostException e) {
+                // Showing internet connection error message
+                JOptionPane.showMessageDialog(null, "Check Your Internet Connection & Then Click Download", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (Exception e) {
+                // Showing any other error message except internet connection error
                 JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
             } finally {
+                // Setting default values after executing download
                 is_downloading = false;
-                download_btn.setEnabled(true);
                 progress_bar.setValue(0);
+                progress_bar.setVisible(false);
+
+                // Changing text and color of download button to default
+                download_btn.setText("Download");
+                download_btn.setBackground(Color.decode("#333333"));
             }
+
         }
     }
-
 
 }
