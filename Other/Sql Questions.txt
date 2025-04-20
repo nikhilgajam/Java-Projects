@@ -1,0 +1,15 @@
+select b.flight_id, b.from_location, b.to_location, extract(month from a.flight_departure_date) as Month_Name, round(avg(price)) as Average_Prices 
+from air_flight_details a inner join air_flight b
+on a.flight_id = b.flight_id 
+where b.airline_name = 'ABC AIRLINES' 
+group by b.flight_id, b.from_location, b.to_location, extract(month from a.flight_departure_date) 
+order by b.flight_id, extract(month from a.flight_departure_date);
+
+--select b.flight_id, b.from_location, b.to_location, trunc(a.flight_departure_date, 'MM') as Month_Name, round(avg(price)) as Average_Prices 
+--from air_flight_details a inner join air_flight b
+--on a.flight_id = b.flight_id 
+--where b.airline_name = 'ABC AIRLINES' 
+--group by b.flight_id, b.from_location, b.to_location, trunc(a.flight_departure_date, 'MM')
+--order by b.flight_id, trunc(a.flight_departure_date, 'MM');
+
+--select extract(month from flight_departure_date) from air_flight_details;

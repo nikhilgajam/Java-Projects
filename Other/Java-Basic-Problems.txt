@@ -1,0 +1,114 @@
+
+
+1. Write a Java program to find the k largest elements in a given array. Elements in the array can be in any order.
+
+Expected Output:
+Original Array:
+[1, 4, 17, 7, 25, 3, 100]
+3 largest elements of the said array are:
+100 25 17
+
+2. Write a Java program to find the kth smallest and largest element in a given array. Elements in the array can be in any order.
+
+Expected Output:
+Original Array:
+[1, 4, 17, 7, 25, 3, 100]
+K'th smallest element of the said array:
+3
+K'th largest element of the said array:
+25
+
+
+
+3.  Write a Java program that finds numbers greater than the average of an array.
+
+Expected Output:
+Original Array:
+[1, 4, 17, 7, 25, 3, 100]
+The average of the said array is: 22.0
+The numbers in the said array that are greater than the average are:
+25
+100
+
+
+4. Write a Java program that will accept an integer and convert it into a binary representation. 
+Now count the number of bits equal to zero in this representation.
+
+Expected Output:
+Input first number: 25
+Binary representation of 25 is: 11001
+Number of zero bits: 2
+
+
+5.  Write a Java program to divide the two given integers using the subtraction operator.
+
+Expected Output:
+Input the dividend: 625
+Input the divider: 25
+Result: 25.0
+
+
+6. Write a Java program to move every positive number to the right and every negative number 
+   to the left of a given array of integers.
+
+Expected Output:
+Original array: [-2, 3, 4, -1, -3, 1, 2, -4, 0]
+Result: [-4, -3, -2, -1, 0, 1, 2, 3, 4]
+
+
+
+7. Write a Java program to transform a given integer into String format.
+
+Expected Output:
+Input an integer: 35
+String format of the said integer: 35
+
+
+8. Write a Java program to move every zero to the right side of a given array of integers.
+
+Original array: [0, 3, 4, 0, 1, 2, 5, 0]
+Result: [3, 4, 1, 2, 5, 0, 0, 0]
+
+
+9. Write a Java program to multiply two given integers without using the multiply operator (*).
+
+Input the first number: 25
+Input the second number: 5
+Result: 125
+
+
+10.  Write a Java program that reads two floating-point numbers and tests whether they are the same up to three decimal places.
+Test Data
+Input floating-point number: 25.586
+Input floating-point another number: 25.589
+Expected Output :
+They are different
+
+
+11. Write a Java program that reads an positive integer and count the number of digits the number (less than ten billion) has.
+
+Test Data
+Input an integer number less than ten billion: 125463
+Expected Output :
+
+Number of digits in the number: 6
+
+
+12.  Write a program that accepts three numbers from the user and prints "increasing" if the numbers are in increasing order, 
+"decreasing" if the numbers are in decreasing order, and "Neither increasing or decreasing order" otherwise.
+Test Data
+Input first number: 1524
+Input second number: 2345
+Input third number: 3321
+Expected Output :
+
+Increasing order
+
+
+13. Write a Java program to reverse a sentence (assume a single space between two words) without reverse every word.
+
+Input a string: The quick brown fox jumps over the lazy dog
+Result: dog lazy the over jumps fox brown quick The
+
+
+

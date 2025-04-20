@@ -1,0 +1,170 @@
+
+1. Find Unique Character - String Operations
+
+2. Longest Substring Without Repeating Characters - String Manipulation
+
+3. Finding the Longest Palindromic Substring - String Operations
+
+4. How do you check if two strings are anagrams of each other? 
+
+5. How do you find all the permutations of a string? 
+
+6. How do you check if a string contains only digits? 
+
+7. How do you find duplicate characters in a given string? 
+
+8. How do you count the occurrence of a given character in a string? 
+
+9. How do you print the first non-repeated character from a string?
+
+10. How do you reverse words in a given sentence without using any library method? 
+
+How do you find the length of the longest substring without repeating characters? 
+
+how to remove the duplicate character from String? 
+
+How to find the maximum occurring character in given String? 
+
+How do you remove a given character from String? 
+
+
+
+1. Write a java program to reversal the given word.
+
+2. Write a java program to find the number of occurences of the given pattern.
+
+3. Write a java program to find whether the two given words are anagrams
+   Hint: anagrams are those which contains same letters in both words.
+  ex> listen and silent are anagrams
+
+4. Write a java program to check whether given string is pangram or not?
+  Hint: Pangram is string which consists of all alphabets
+
+5. Write a java program to check if two given Strings are Isomorphic to each other
+   return true if yes else false.
+
+6. Input:  str1 = “aab”, str2 = “xxy”
+Output: True
+Explanation: ‘a’ is mapped to ‘x’ and ‘b’ is mapped to ‘y’.
+
+Input:  str1 = “aab”, str2 = “xyz”
+Output: False
+Explanation: One occurrence of ‘a’ in str1 has ‘x’ in str2 and other occurrence of ‘a’ has ‘y’.
+
+
+7. Given two strings, write a java program to find if a string can be obtained by rotating another string by two places. 
+Input: string1 = “amazon”, string2 = “azonam” 
+Output: Yes 
+Explanation: Rotating string1 by 2 places in anti-clockwise gives the string2.
+
+Input: string1 = “amazon”, string2 = “onamaz” 
+Output: Yes 
+Explanation: Rotating string1 by 2 places in clockwise gives the string2.
+
+
+8. Write a method that returns number of occurrences of a each ovel in a string.
+		public Map<Character,Integer>  getOccurrences(String string);
+
+9. Write a method that that returns acronym in uppercase of given string.
+
+		public String getAcronym(String string);
+
+		Ex. if string is Welcome To Java, ouput  WTJ
+
+10. Write a method that receives an array of String and retuns string with least number 
+   of characters
+
+		public String  leastLength(String [] words);
+
+11. Write a method that returns difference between lowest and highest values of the
+   given array.
+
+	public int difference(inte list[]);
+
+12. Write a method that sorts first half of the array in ascending order and second half
+of the array in decending ored and returns new array.
+
+	public int[] sort(int list[]);
+
+
+13. Write a Java program that iterates integers from 1 to 100. For multiples of three print "Fizz" instead of the number 
+and print "Buzz" for five. When the number is divided by three and five, print "fizz buzz".
+
+
+14. Write a Java program to find a contiguous subarray with the largest sum from a given array of integers.
+Note: In computer science, the maximum subarray problem is the task of finding the contiguous subarray within a one-dimensional 
+array of numbers which has the largest sum. For example, for the sequence of values −2, 1, −3, 4, −1, 2, 1, −5, 4; 
+the contiguous subarray with the largest sum is 4, −1, 2, 1, with sum 6. The subarray should contain one integer at least.
+
+
+15. Write a Java program to get the preorder traversal of the values of the nodes in a binary tree.
+Example:
+    10
+   / \
+  20   30
+ / \
+40   50
+
+
+16. Write a Java program to find the updated length of a sorted array where each element appears only once (remove duplicates).
+Original array: [1, 1, 2, 3, 3, 3, 4, 5, 6, 7, 7] 
+The length of the original array is: 11 After removing duplicates, the new length of the array is: 7
+
+
+17. Write a Java program to remove the nth element from the end of a given list.
+Sample Output:
+Original node:
+1 2 3 4 5
+After removing 2nd element from end:
+1 2 3 5
+
+
+18.  Write a Java program to find the index of the first unique character in a given string. Assume that there is at least one unique character in the string.
+Sample Output:
+Original String: wresource
+First unique character of the above: 0
+
+
+19. Write a Java program to check if a given string is a permutation of another given string.
+Sample Output:
+Original strings: xxyz yxzx
+true
+
+
+20. Write a Java program to check if an array of integers contains three increasing adjacent numbers.
+
+ex> 123, 345, 456, 789 etc.,
+
+
+String-handling problems
+
+21. Write a method that returns number of occurrences of a each ovel in a string.
+		public Map<Character,Integer>  getOccurrences(String string);
+
+22. Write a method that that returns acronym in uppercase of given string.
+
+		public String getAcronym(String string);
+
+		Ex. if string is Welcome To Java, ouput  WTJ
+
+23. Write a method that receives an array of String and retuns string with least number 
+   of characters
+
+		public String  leastLength(String [] words);
+
+24. Write a method that returns difference between lowest and highest values of the
+   given array.
+
+	public int difference(inte list[]);
+
+25. Write a method that sorts first half of the array in ascending order and second half
+of the array in decending ored and returns new array.
+
+	public int[] sort(int list[]);
+
+
+
+
+
+
+
